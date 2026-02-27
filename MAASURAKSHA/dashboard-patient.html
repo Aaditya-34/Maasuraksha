@@ -1,0 +1,650 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>MaaSuraksha — Patient Dashboard</title>
+    <meta name="description"
+        content="Patient home monitoring dashboard — real-time vitals, risk level, and AI health insights." />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-logo-img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #fff;
+            padding: 2px;
+        }
+    </style>
+    <script src="js/auth.js"></script>
+    <script>
+        // Auth guard — patient only
+        (function () {
+            const u = window.MSAuth?.requireAuth ? window.MSAuth.requireAuth(['patient']) :
+                (function () {
+                    const tk = localStorage.getItem('ms_auth_token');
+                    const us = JSON.parse(localStorage.getItem('ms_auth_user') || 'null');
+                    if (!tk || !us) { window.location.replace('login.html'); return null; }
+                    if (!['patient'].includes(us.role)) { window.location.replace('login.html'); return null; }
+                    window.MSAuth = { token: tk, user: us, isLoggedIn: true };
+                    return us;
+                })();
+            if (!u) return;
+            // Fill sidebar name
+            document.addEventListener('DOMContentLoaded', () => {
+                const n = document.getElementById('sidebarUserName');
+                const a = document.getElementById('sidebarAvatar');
+                if (n) n.textContent = u.name || u.username;
+                if (a) a.textContent = (u.name || 'P')[0].toUpperCase();
+            });
+        })();
+    </script>
+</head>
+
+<body class="dashboard-body">
+    <div class="dashboard-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="images/logo.png" alt="MaaSuraksha" class="sidebar-logo-img">
+                <span>Maa<span class="gradient-text">Suraksha</span></span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-section-label">My Health</div>
+                <div class="sidebar-item active">
+                    <span class="sidebar-item-icon">📊</span> Dashboard
+                </div>
+                <div class="sidebar-item">
+                    <span class="sidebar-item-icon">❤️</span> Vitals History
+                </div>
+                <div class="sidebar-item">
+                    <span class="sidebar-item-icon">🔔</span> Alerts
+                    <span class="sidebar-badge">2</span>
+                </div>
+                <div class="sidebar-section-label" style="margin-top:16px;">Care</div>
+                <div class="sidebar-item">
+                    <span class="sidebar-item-icon">📅</span> Appointments
+                </div>
+                <div class="sidebar-item">
+                    <span class="sidebar-item-icon">💊</span> Medications
+                </div>
+                <div class="sidebar-item">
+                    <span class="sidebar-item-icon">📞</span> Contact ASHA
+                </div>
+                <div class="sidebar-section-label" style="margin-top:16px;">Navigation</div>
+                <a class="sidebar-item" href="index.html">
+                    <span class="sidebar-item-icon">🏠</span> Home
+                </a>
+                <a class="sidebar-item" href="dashboard-doctor.html">
+                    <span class="sidebar-item-icon">👨‍⚕️</span> Doctor View
+                </a>
+                <a class="sidebar-item" href="dashboard-asha.html">
+                    <span class="sidebar-item-icon">💂</span> ASHA View
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="sidebarAvatar">P</div>
+                    <div>
+                        <div class="sidebar-user-name" id="sidebarUserName">Patient</div>
+                        <div class="sidebar-user-role">Week <span id="pregnancyWeek">28</span> · Patient</div>
+                    </div>
+                </div>
+                <button
+                    onclick="window.MSAuth?.logout ? window.MSAuth.logout() : (localStorage.clear(), window.location.replace('login.html'))"
+                    style="margin-top:10px;width:100%;background:rgba(255,69,58,0.1);border:1px solid rgba(255,69,58,0.25);border-radius:10px;padding:8px;color:#ff453a;font-family:inherit;font-size:0.8rem;cursor:pointer;">🚪
+                    Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+
+            <!-- Topbar -->
+            <div class="dashboard-topbar">
+                <div class="topbar-title">
+                    <h2>My Health Dashboard 🤰</h2>
+                    <p>Real-time monitoring · Last synced just now</p>
+                </div>
+                <div class="topbar-actions">
+                    <!-- Language Toggle -->
+                    <div class="lang-toggle">
+                        <button class="lang-btn active" data-lang="en">EN</button>
+                        <button class="lang-btn" data-lang="hi">हिं</button>
+                    </div>
+                    <!-- Scenario sim -->
+                    <select id="scenarioSelect"
+                        style="background:var(--bg-card);border:var(--border-glass);color:var(--text-secondary);padding:8px 12px;border-radius:var(--radius-md);font-size:0.8rem;cursor:pointer;">
+                        <option value="normal">Scenario: Normal</option>
+                        <option value="preeclampsia">Scenario: Preeclampsia</option>
+                        <option value="anemia">Scenario: Anemia</option>
+                        <option value="gestational_diabetes">Scenario: Gestational Diabetes</option>
+                    </select>
+                    <!-- Voice alert -->
+                    <button id="voiceAlertBtn" class="btn btn-secondary btn-sm">🔊 Voice Alert</button>
+                    <div class="notif-btn"><span>🔔</span>
+                        <div class="notif-pip"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Level Banner -->
+            <div class="glass-card"
+                style="margin-bottom:24px;background:linear-gradient(135deg,rgba(0,212,180,0.07),rgba(167,139,250,0.05));border-color:rgba(0,212,180,0.2);">
+                <div class="glass-card-inner"
+                    style="padding:20px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+                    <div style="display:flex;align-items:center;gap:16px;">
+                        <div style="font-size:2.2rem;">🛡️</div>
+                        <div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;"
+                                data-langkey="riskLevel">Risk Level</div>
+                            <div id="riskBadge" class="badge badge-normal" style="font-size:0.9rem;padding:6px 16px;">
+                                <span class="badge-dot"></span> Low Risk ✅
+                            </div>
+                        </div>
+                    </div>
+                    <div style="flex:1;max-width:340px;">
+                        <div id="riskContainer" class="risk-meter risk-low">
+                            <div id="riskBar" class="risk-fill" style="width:15%;"></div>
+                        </div>
+                        <div
+                            style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-muted);margin-top:4px;">
+                            <span>Safe</span><span>Moderate</span><span>High Risk</span>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:0.75rem;color:var(--text-muted);" data-langkey="nextVisit">Next Visit
+                        </div>
+                        <div id="nextVisitDate" style="font-weight:600;font-size:0.95rem;">Wednesday, Feb 26</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);" data-langkey="pregnancy_week">Week <span
+                                id="pregnancyWeek2">28</span> of pregnancy</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vitals Grid -->
+            <div class="grid-4" style="margin-bottom:24px;">
+                <div class="vital-card teal">
+                    <div class="vital-card-icon">❤️</div>
+                    <div class="vital-card-label" data-langkey="heartRate">Heart Rate</div>
+                    <div class="vital-card-value"><span id="valHR">82</span></div>
+                    <div class="vital-card-unit">bpm</div>
+                    <div class="vital-card-trend"><span id="trendHR" style="color:var(--text-muted);">—</span> <span
+                            style="color:var(--text-muted);font-size:0.75rem;">vs baseline</span></div>
+                    <div class="chart-container" style="height:80px;margin-top:12px;"><canvas id="hrChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="vital-card violet">
+                    <div class="vital-card-icon">🫁</div>
+                    <div class="vital-card-label" data-langkey="spo2">Blood Oxygen</div>
+                    <div class="vital-card-value"><span id="valSpO2">97</span></div>
+                    <div class="vital-card-unit">% SpO₂</div>
+                    <div class="vital-card-trend"><span id="trendSpO2" style="color:var(--text-muted);">—</span> <span
+                            style="color:var(--text-muted);font-size:0.75rem;">vs baseline</span></div>
+                    <div class="chart-container" style="height:80px;margin-top:12px;"><canvas id="spo2Chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="vital-card rose">
+                    <div class="vital-card-icon">💉</div>
+                    <div class="vital-card-label" data-langkey="bp">Blood Pressure</div>
+                    <div class="vital-card-value" style="font-size:1.6rem;"><span id="valSystolic">118</span>/<span
+                            id="valDiastolic">76</span></div>
+                    <div class="vital-card-unit">mmHg</div>
+                    <div class="vital-card-trend"><span id="trendBP" style="color:var(--text-muted);">—</span> <span
+                            style="color:var(--text-muted);font-size:0.75rem;">systolic</span></div>
+                    <div class="chart-container" style="height:80px;margin-top:12px;"><canvas id="bpChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="vital-card amber">
+                    <div class="vital-card-icon">🌡️</div>
+                    <div class="vital-card-label" data-langkey="temp">Temperature</div>
+                    <div class="vital-card-value"><span id="valTemp">36.8</span></div>
+                    <div class="vital-card-unit">°C</div>
+                    <div class="vital-card-trend"><span id="trendTemp" style="color:var(--text-muted);">—</span> <span
+                            style="color:var(--text-muted);font-size:0.75rem;">vs normal</span></div>
+                    <div class="chart-container" style="height:80px;margin-top:12px;"><canvas id="tempChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Bottom row: AI Insight + Extra vitals + Reminders -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
+                <!-- AI Insight -->
+                <div class="glass-card">
+                    <div class="glass-card-inner">
+                        <h4 style="margin-bottom:16px;">🧠 AI Health Insight</h4>
+                        <div class="ai-insight">
+                            <div class="ai-icon">🧠</div>
+                            <div>
+                                <div class="ai-label">GenAI Analysis</div>
+                                <div class="ai-text" id="aiInsightText">✨ Your vitals are stable. Keep staying hydrated and take rest as needed. Your next check-up is in 3 days.</div>
+                            </div>
+                        </div>
+                        <div class="divider"></div>
+                        <div style="display:flex;gap:16px;flex-wrap:wrap;">
+                            <div style="flex:1;min-width:120px;">
+                                <div style="font-size:0.73rem;color:var(--text-muted);margin-bottom:6px;"
+                                    data-langkey="hrv">HRV</div>
+                                <div
+                                    style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.3rem;color:var(--accent-violet);">
+                                    <span id="valHRV">42</span> <span
+                                        style="font-size:0.75rem;font-weight:400;color:var(--text-muted);">ms</span>
+                                </div>
+                            </div>
+                            <div style="flex:1;min-width:120px;">
+                                <div style="font-size:0.73rem;color:var(--text-muted);margin-bottom:6px;"
+                                    data-langkey="activity">Activity</div>
+                                <div
+                                    style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.3rem;color:var(--accent-teal);">
+                                    Light <span
+                                        style="font-size:0.75rem;font-weight:400;color:var(--text-muted);"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reminders & Alerts -->
+                <div class="glass-card">
+                    <div class="glass-card-inner">
+                        <h4 style="margin-bottom:16px;">📋 Reminders & Alerts</h4>
+                        <div style="display:flex;flex-direction:column;gap:12px;">
+                            <div
+                                style="display:flex;gap:12px;align-items:center;padding:12px;background:rgba(0,212,180,0.06);border-radius:var(--radius-md);border:1px solid rgba(0,212,180,0.15);">
+                                <span style="font-size:1.4rem;">💊</span>
+                                <div>
+                                    <div style="font-size:0.88rem;font-weight:500;">Iron + Folic Acid</div>
+                                    <div style="font-size:0.77rem;color:var(--text-muted);">Take with food · Every morning</div>
+                                </div>
+                                <span class="badge badge-normal" style="margin-left:auto;">Today</span>
+                            </div>
+                            <div
+                                style="display:flex;gap:12px;align-items:center;padding:12px;background:rgba(255,179,71,0.06);border-radius:var(--radius-md);border:1px solid rgba(255,179,71,0.15);">
+                                <span style="font-size:1.4rem;">📅</span>
+                                <div>
+                                    <div style="font-size:0.88rem;font-weight:500;">Antenatal Checkup</div>
+                                    <div style="font-size:0.77rem;color:var(--text-muted);">PHC — Dr. Rao · In 3 days
+                                    </div>
+                                </div>
+                                <span class="badge badge-warning" style="margin-left:auto;">Soon</span>
+                            </div>
+                            <div
+                                style="display:flex;gap:12px;align-items:center;padding:12px;background:rgba(255,107,157,0.06);border-radius:var(--radius-md);border:1px solid rgba(255,107,157,0.15);">
+                                <span style="font-size:1.4rem;">👨‍⚕️</span>
+                                <div>
+                                    <div style="font-size:0.88rem;font-weight:500;">Glucose Tolerance Test</div>
+                                    <div style="font-size:0.77rem;color:var(--text-muted);">Fasting required · In 7 days
+                                    </div>
+                                </div>
+                                <span class="badge badge-warning" style="margin-left:auto;">Upcoming</span>
+                            </div>
+                            <div
+                                style="display:flex;gap:12px;align-items:center;padding:12px;background:rgba(255,69,58,0.06);border-radius:var(--radius-md);border:1px solid rgba(255,69,58,0.15);">
+                                <span style="font-size:1.4rem;">🔔</span>
+                                <div>
+                                    <div style="font-size:0.88rem;font-weight:500;">BP elevated yesterday</div>
+                                    <div style="font-size:0.77rem;color:var(--text-muted);">Systolic 138 at 18:30 · Reported to ASHA</div>
+                                </div>
+                                <span class="badge badge-critical" style="margin-left:auto;">Alert</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Contacts -->
+            <div class="glass-card">
+                <div class="glass-card-inner">
+                    <h4 style="margin-bottom:16px;">📞 Quick Contacts</h4>
+                    <div class="grid-3">
+                        <div
+                            style="display:flex;gap:12px;align-items:center;padding:14px;background:rgba(0,212,180,0.06);border-radius:var(--radius-md);cursor:pointer;border:1px solid rgba(0,212,180,0.12);">
+                            <span style="font-size:1.6rem;">💂</span>
+                            <div>
+                                <div style="font-weight:600;font-size:0.9rem;">ASHA Preeti Didi</div>
+                                <div style="font-size:0.77rem;color:var(--text-muted);">+91 98765 43210</div>
+                            </div>
+                        </div>
+                        <div
+                            style="display:flex;gap:12px;align-items:center;padding:14px;background:rgba(167,139,250,0.06);border-radius:var(--radius-md);cursor:pointer;border:1px solid rgba(167,139,250,0.12);">
+                            <span style="font-size:1.6rem;">👩‍⚕️</span>
+                            <div>
+                                <div style="font-weight:600;font-size:0.9rem;">Dr. Meenakshi Rao</div>
+                                <div style="font-size:0.77rem;color:var(--text-muted);">PHC Ramgarh</div>
+                            </div>
+                        </div>
+                        <div
+                            style="display:flex;gap:12px;align-items:center;padding:14px;background:rgba(255,69,58,0.06);border-radius:var(--radius-md);cursor:pointer;border:1px solid rgba(255,69,58,0.15);">
+                            <span style="font-size:1.6rem;">🚑</span>
+                            <div>
+                                <div style="font-weight:600;font-size:0.9rem;">Emergency Helpline</div>
+                                <div style="font-size:0.77rem;color:var(--accent-rose);">108 · 24/7 Ambulance</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Floating AI Chat Widget -->
+    <style>
+        /* Chat bubble */
+        #ai-chat-bubble {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 6px 28px rgba(139, 92, 246, .55);
+            transition: all .3s cubic-bezier(.34, 1.56, .64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #ai-chat-bubble:hover {
+            transform: scale(1.12);
+        }
+
+        #ai-chat-bubble.open {
+            transform: rotate(45deg)scale(1.08);
+        }
+
+        /* Chat panel */
+        #ai-chat-panel {
+            position: fixed;
+            bottom: 96px;
+            right: 28px;
+            z-index: 9998;
+            width: 360px;
+            height: 500px;
+            background: rgba(15, 15, 30, .95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .6);
+            transform: scale(.85) translateY(20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all .28s cubic-bezier(.34, 1.4, .64, 1);
+        }
+
+        #ai-chat-panel.open {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .chat-header {
+            padding: 16px 18px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, .25), rgba(236, 72, 153, .18));
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, .1) transparent;
+        }
+
+        .msg {
+            max-width: 87%;
+            font-size: 13.5px;
+            line-height: 1.55;
+            border-radius: 14px;
+            padding: 10px 13px;
+            animation: msgIn .2s ease;
+        }
+
+        .msg.bot {
+            align-self: flex-start;
+            background: rgba(139, 92, 246, .18);
+            border: 1px solid rgba(139, 92, 246, .25);
+            color: #e2e8f0;
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: #fff;
+        }
+
+        .msg.typing {
+            opacity: .7;
+        }
+
+        @keyframes msgIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px)
+            }
+
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .chat-input-row {
+            padding: 12px 14px;
+            border-top: 1px solid rgba(255, 255, 255, .08);
+            display: flex;
+            gap: 8px;
+            background: rgba(0, 0, 0, .2);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: 12px;
+            padding: 10px 14px;
+            color: #e2e8f0;
+            font-family: inherit;
+            font-size: 13.5px;
+            outline: none;
+            resize: none;
+        }
+
+        .chat-input:focus {
+            border-color: #8b5cf6;
+        }
+
+        .chat-send {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all .2s;
+        }
+
+        .chat-send:hover {
+            transform: scale(1.1);
+        }
+
+        .wv:nth-child(2) {
+            height: 16px;
+            animation-delay: .1s
+        }
+
+        .wv:nth-child(3) {
+            height: 12px;
+            animation-delay: .2s
+        }
+
+        .wv:nth-child(4) {
+            height: 20px;
+            animation-delay: .3s
+        }
+
+        .wv:nth-child(5) {
+            height: 10px;
+            animation-delay: .4s
+        }
+
+        .wv:nth-child(6) {
+            height: 18px;
+            animation-delay: .5s
+        }
+
+        .wv:nth-child(7) {
+            height: 8px;
+            animation-delay: .6s
+        }
+
+        @keyframes waveAnim {
+
+            0%,
+            100% {
+                transform: scaleY(1)
+            }
+
+            50% {
+                transform: scaleY(2)
+            }
+        }
+    </style>
+
+    <!-- Chat bubble button -->
+    <button id="ai-chat-bubble" onclick="toggleChat()" aria-label="Open AI Chat" title="Chat with AI">💬</button>
+
+    <!-- Chat panel -->
+    <div id="ai-chat-panel">
+        <div class="chat-header">
+            <div class="chat-avatar">🧠</div>
+            <div>
+                <div style="font-weight:700;font-size:14px;">MaaSuraksha AI</div>
+                <div style="font-size:11.5px;color:#c4b5fd;">● Live · Powered by Gemini</div>
+            </div>
+            <button onclick="toggleChat()"
+                style="margin-left:auto;background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:18px;">✕</button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="msg bot">👋 Hello! I'm your MaaSuraksha AI health assistant. I can see your vitals and pregnancy record. Ask me anything — about your symptoms, readings, or what to do next!</div>
+        </div>
+        <div class="chat-input-row">
+            <textarea id="chat-input" class="chat-input" rows="1" placeholder="Ask anything…"
+                onkeydown="chatKeydown(event)"></textarea>
+            <button class="chat-send" onclick="sendChatMessage()" id="chat-send-btn" title="Send">➤</button>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/patient.js"></script>
+    <script>
+        // AI CHAT — Gemini-powered floating widget
+        const chatHistory = [];
+
+        function toggleChat() {
+            const panel = document.getElementById('ai-chat-panel');
+            const bubble = document.getElementById('ai-chat-bubble');
+            const open = panel.classList.toggle('open');
+            bubble.classList.toggle('open', open);
+            bubble.textContent = open ? '✕' : '💬';
+            if (open) { document.getElementById('chat-input').focus(); scrollChat(); }
+        }
+
+        function scrollChat() {
+            const msgs = document.getElementById('chat-messages');
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function appendMsg(role, text) {
+            const msgs = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+            div.textContent = text;
+            msgs.appendChild(div);
+            scrollChat();
+            return div;
+        }
+
+        function chatKeydown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
+        }
+
+        async function sendChatMessage() {
+            const inputEl = document.getElementById('chat-input');
+            const message = inputEl.value.trim();
+            if (!message) return;
+            inputEl.value = '';
+            appendMsg('user', message);
+            chatHistory.push({ role: 'user', content: message });
+
+            const typing = appendMsg('bot', '...');
+            typing.classList.add('typing');
+            document.getElementById('chat-send-btn').disabled = true;
+
+            try {
+                const token = localStorage.getItem('ms_auth_token');
+                const res = await fetch('http://localhost:3001/api/ai/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ message, history: chatHistory.slice(-10) })
+                });
+                const data = await res.json();
+                typing.remove();
+                const reply = data.success ? data.reply : ('⚠️ ' + (data.error || 'AI unavailable'));
+                appendMsg('bot', reply);
+                if (data.success) chatHistory.push({ role: 'assistant', content: reply });
+            } catch (err) {
+                typing.textContent = '⚠️ Cannot reach server. Make sure backend is running.';
+                typing.classList.remove('typing');
+            } finally {
+                document.getElementById('chat-send-btn').disabled = false;
+                document.getElementById('chat-input').focus();
+            }
+        }
+    </script>
+</body>
+
+</html>
+

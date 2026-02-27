@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>MaaSuraksha — ASHA Worker Dashboard</title>
+    <meta name="description"
+        content="ASHA worker field dashboard — village patient list, check-in workflow, and community stats." />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-logo-img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #fff;
+            padding: 2px;
+        }
+    </style>
+    <script src="js/auth.js"></script>
+    <script>
+        (function () {
+            const tk = localStorage.getItem('ms_auth_token');
+            const us = JSON.parse(localStorage.getItem('ms_auth_user') || 'null');
+            if (!tk || !us) { window.location.replace('login.html'); return; }
+            if (!['asha'].includes(us.role)) { window.location.replace('login.html'); return; }
+            window.MSAuth = { token: tk, user: us, isLoggedIn: true };
+            document.addEventListener('DOMContentLoaded', () => {
+                const n = document.getElementById('sidebarUserName');
+                const a = document.getElementById('sidebarAvatar');
+                if (n) n.textContent = us.name || us.username;
+                if (a) a.textContent = (us.name || 'A')[0].toUpperCase();
+            });
+        })();
+    </script>
+</head>
+
+<body class="dashboard-body">
+    <div class="dashboard-layout">
+
+        <!-- ─ Sidebar ─────────────────────────────── -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="images/logo.png" alt="MaaSuraksha" class="sidebar-logo-img">
+                <span>Maa<span class="gradient-text">Suraksha</span></span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section-label">My Patients</div>
+                <div class="sidebar-item active"><span class="sidebar-item-icon">📊</span> Overview</div>
+                <div class="sidebar-item"><span class="sidebar-item-icon">✅</span> Today's Check-ins</div>
+                <div class="sidebar-item"><span class="sidebar-item-icon">🚨</span> Flag for Doctor <span
+                        class="sidebar-badge">2</span></div>
+                <div class="sidebar-item"><span class="sidebar-item-icon">📍</span> Village Map</div>
+                <div class="sidebar-section-label" style="margin-top:16px;">Community</div>
+                <div class="sidebar-item"><span class="sidebar-item-icon">📊</span> Stats</div>
+                <div class="sidebar-item"><span class="sidebar-item-icon">📋</span> Reports</div>
+                <div class="sidebar-section-label" style="margin-top:16px;">Navigate</div>
+                <a class="sidebar-item" href="index.html"><span class="sidebar-item-icon">🏠</span> Home</a>
+                <a class="sidebar-item" href="dashboard-patient.html"><span class="sidebar-item-icon">👩‍🍼</span>
+                    Patient View</a>
+                <a class="sidebar-item" href="dashboard-doctor.html"><span class="sidebar-item-icon">🩺</span> Doctor
+                    View</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="sidebarAvatar">P</div>
+                    <div>
+                        <div class="sidebar-user-name" id="sidebarUserName">Preeti Kumari</div>
+                        <div class="sidebar-user-role">ASHA Worker · Bihar Block 4</div>
+                    </div>
+                </div>
+                <button
+                    onclick="window.MSAuth?.logout ? window.MSAuth.logout() : (localStorage.clear(), window.location.replace('login.html'))"
+                    style="margin-top:10px;width:100%;background:rgba(255,69,58,0.1);border:1px solid rgba(255,69,58,0.25);border-radius:10px;padding:8px;color:#ff453a;font-family:inherit;font-size:0.8rem;cursor:pointer;">🚪
+                    Logout</button>
+            </div>
+        </aside>
+
+        <!-- ─ Main ────────────────────────────────── -->
+        <main class="dashboard-main">
+            <div class="dashboard-topbar">
+                <div class="topbar-title">
+                    <h2>ASHA Field Dashboard 🏥</h2>
+                    <p>Bihar Block 4 — 8 Villages · <span id="ashaDate"></span></p>
+                </div>
+                <div class="topbar-actions">
+                    <div class="online-indicator offline-indicator" id="connectivityBadge">🟢 Online</div>
+                    <div class="btn btn-primary btn-sm" onclick="openCheckin()">+ Quick Check-In</div>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="grid-4" style="margin-bottom:24px;">
+                <div class="vital-card teal">
+                    <div class="vital-card-icon">👥</div>
+                    <div class="vital-card-label">My Patients</div>
+                    <div class="vital-card-value">18</div>
+                    <div class="vital-card-unit">Assigned</div>
+                </div>
+                <div class="vital-card rose">
+                    <div class="vital-card-icon">🚨</div>
+                    <div class="vital-card-label">High Risk</div>
+                    <div class="vital-card-value">2</div>
+                    <div class="vital-card-unit">Flag for doctor</div>
+                </div>
+                <div class="vital-card amber">
+                    <div class="vital-card-icon">📅</div>
+                    <div class="vital-card-label">Due Check-ins</div>
+                    <div class="vital-card-value">5</div>
+                    <div class="vital-card-unit">This week</div>
+                </div>
+                <div class="vital-card violet">
+                    <div class="vital-card-icon">✅</div>
+                    <div class="vital-card-label">Done Today</div>
+                    <div class="vital-card-value" id="checkinCount">3</div>
+                    <div class="vital-card-unit">Check-ins</div>
+                </div>
+            </div>
+
+            <!-- Patient List + Side panel -->
+            <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:24px;margin-bottom:24px;">
+
+                <!-- Patient Cards -->
+                <div class="glass-card">
+                    <div class="glass-card-inner" style="padding:0;">
+                        <div
+                            style="padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;">
+                            <h4>Village Patient List</h4>
+                            <span class="badge badge-normal">18 Patients</span>
+                        </div>
+                        <div id="ashaPatientList"
+                            style="padding:12px;display:flex;flex-direction:column;gap:8px;max-height:480px;overflow-y:auto;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Check-in Panel and Community Stats -->
+                <div style="display:flex;flex-direction:column;gap:16px;">
+
+                    <!-- Quick Check-in -->
+                    <div class="glass-card" id="checkinPanel">
+                        <div class="glass-card-inner">
+                            <h4 style="margin-bottom:14px;">✅ Quick Check-In</h4>
+                            <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px;">Select a
+                                checklist item and tap to record:</div>
+                            <div id="checkinList" style="display:flex;flex-direction:column;gap:10px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Community Donut -->
+                    <div class="glass-card">
+                        <div class="glass-card-inner">
+                            <h4 style="margin-bottom:14px;">📊 Community Health</h4>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                                <div>
+                                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;">Risk
+                                        Distribution</div>
+                                    <div class="chart-container" style="height:130px;"><canvas
+                                            id="ashaRiskChart"></canvas></div>
+                                </div>
+                                <div>
+                                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;">Visits
+                                        Progress</div>
+                                    <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
+                                        <div>
+                                            <div
+                                                style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px;">
+                                                <span>Antenatal visits</span><span
+                                                    style="color:var(--accent-teal);">14/18</span>
+                                            </div>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width:78%;"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div
+                                                style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px;">
+                                                <span>Iron supplement uptake</span><span
+                                                    style="color:var(--accent-violet);">16/18</span>
+                                            </div>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill"
+                                                    style="width:89%;background:linear-gradient(90deg,var(--accent-violet),#818cf8);">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div
+                                                style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px;">
+                                                <span>Institutional delivery plan</span><span
+                                                    style="color:var(--accent-amber);">12/18</span>
+                                            </div>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill"
+                                                    style="width:67%;background:linear-gradient(90deg,var(--accent-amber),#ff6b6b);">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Offline mode notice -->
+            <div class="glass-card" style="border-color:rgba(255,179,71,0.25);background:rgba(255,179,71,0.04);">
+                <div class="glass-card-inner" style="padding:16px 24px;display:flex;align-items:center;gap:16px;">
+                    <span style="font-size:1.5rem;">📡</span>
+                    <div>
+                        <div style="font-weight:600;font-size:0.9rem;">Offline-Ready Mode</div>
+                        <div style="font-size:0.82rem;color:var(--text-secondary);">MaaSuraksha works without internet
+                            in the field. Check-ins and vitals are saved locally and will sync when connectivity is
+                            restored. Last synced: <strong>Today, 6:42 PM</strong></div>
+                    </div>
+                    <span class="badge badge-normal" style="margin-left:auto;flex-shrink:0;">✅ Synced</span>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Check-in Modal -->
+    <div id="checkinModal"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center;backdrop-filter:blur(6px);">
+        <div class="glass-card" style="width:min(460px,90vw);max-height:80vh;overflow-y:auto;">
+            <div class="glass-card-inner">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                    <h4>📋 Patient Check-In</h4>
+                    <button onclick="closeCheckin()"
+                        style="background:none;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer;">✕</button>
+                </div>
+                <div id="modalPatientSel" style="margin-bottom:16px;">
+                    <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;">Select Patient:</div>
+                    <select id="modalPatient"
+                        style="width:100%;background:var(--bg-card);border:var(--border-glass);color:var(--text-primary);padding:10px;border-radius:var(--radius-md);font-size:0.88rem;"></select>
+                </div>
+                <div id="modalChecklist" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;"></div>
+                <div style="display:flex;gap:10px;">
+                    <button onclick="submitCheckin()" class="btn btn-primary" style="flex:1;">✅ Submit Check-In</button>
+                    <button onclick="closeCheckin()" class="btn btn-secondary" style="flex:1;">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/asha.js"></script>
+</body>
+
+</html>

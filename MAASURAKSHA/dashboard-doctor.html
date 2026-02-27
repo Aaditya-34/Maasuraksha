@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>MaaSuraksha — Doctor Dashboard</title>
+    <meta name="description"
+        content="Clinical dashboard for doctors: risk-sorted patient roster, GenAI summaries, alert inbox, and trend charts." />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-logo-img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #fff;
+            padding: 2px;
+        }
+    </style>
+    <script src="js/auth.js"></script>
+    <script>
+        (function () {
+            const tk = localStorage.getItem('ms_auth_token');
+            const us = JSON.parse(localStorage.getItem('ms_auth_user') || 'null');
+            if (!tk || !us) { window.location.replace('login.html'); return; }
+            if (!['doctor'].includes(us.role)) { window.location.replace('login.html'); return; }
+            window.MSAuth = { token: tk, user: us, isLoggedIn: true };
+            document.addEventListener('DOMContentLoaded', () => {
+                const n = document.getElementById('sidebarUserName');
+                const a = document.getElementById('sidebarAvatar');
+                if (n) n.textContent = us.name || us.username;
+                if (a) a.textContent = (us.name || 'D')[0].toUpperCase();
+            });
+        })();
+    </script>
+</head>
+
+<body class="dashboard-body">
+    <div class="dashboard-layout">
+
+        <!-- ─ Sidebar ─────────────────────────────── -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="images/logo.png" alt="MaaSuraksha" class="sidebar-logo-img">
+                <span>Maa<span class="gradient-text">Suraksha</span></span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section-label">Clinical</div>
+                <div class="sidebar-item active"><span class="sidebar-item-icon">📊</span> Overview</div>
+                <div class="sidebar-item"><span class="sidebar-item-icon">👥</span> Patient Roster</div>
+                <div class="sidebar-item"><span class="sidebar-item-icon">🚨</span> Alert Inbox <span
+                        class="sidebar-badge">3</span></div>
+                <div class="sidebar-item"><span class="sidebar-item-icon">📈</span> Analytics</div>
+                <div class="sidebar-section-label" style="margin-top:16px;">Telemedicine</div>
+                <div class="sidebar-item"><span class="sidebar-item-icon">📹</span> Video Consult</div>
+                <div class="sidebar-item"><span class="sidebar-item-icon">💌</span> Messages</div>
+                <div class="sidebar-section-label" style="margin-top:16px;">Navigate</div>
+                <a class="sidebar-item" href="index.html"><span class="sidebar-item-icon">🏠</span> Home</a>
+                <a class="sidebar-item" href="dashboard-patient.html"><span class="sidebar-item-icon">👩‍🍼</span>
+                    Patient View</a>
+                <a class="sidebar-item" href="dashboard-asha.html"><span class="sidebar-item-icon">🏥</span> ASHA
+                    View</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="sidebarAvatar"
+                        style="background:linear-gradient(135deg,var(--accent-violet),#818cf8);">M</div>
+                    <div>
+                        <div class="sidebar-user-name" id="sidebarUserName">Dr. Meenakshi Rao</div>
+                        <div class="sidebar-user-role">Gynecologist · PHC Ramgarh</div>
+                    </div>
+                </div>
+                <button
+                    onclick="window.MSAuth?.logout ? window.MSAuth.logout() : (localStorage.clear(), window.location.replace('login.html'))"
+                    style="margin-top:10px;width:100%;background:rgba(255,69,58,0.1);border:1px solid rgba(255,69,58,0.25);border-radius:10px;padding:8px;color:#ff453a;font-family:inherit;font-size:0.8rem;cursor:pointer;">🚪
+                    Logout</button>
+            </div>
+        </aside>
+
+        <!-- ─ Main ────────────────────────────────── -->
+        <main class="dashboard-main">
+            <div class="dashboard-topbar">
+                <div class="topbar-title">
+                    <h2>Clinical Dashboard 🩺</h2>
+                    <p>Risk-prioritized patient monitoring · <span id="todayDate"></span></p>
+                </div>
+                <div class="topbar-actions">
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" id="patientSearch" placeholder="Search patient..."
+                            oninput="filterPatients(this.value)" />
+                    </div>
+                    <div class="notif-btn">🔔<div class="notif-pip"></div>
+                    </div>
+                    <div class="btn btn-primary btn-sm">📹 Start Consult</div>
+                </div>
+            </div>
+
+            <!-- Summary cards -->
+            <div class="grid-4" style="margin-bottom:24px;">
+                <div class="vital-card teal">
+                    <div class="vital-card-icon">👥</div>
+                    <div class="vital-card-label">Total Patients</div>
+                    <div class="vital-card-value">24</div>
+                    <div class="vital-card-unit">Under monitoring</div>
+                </div>
+                <div class="vital-card rose">
+                    <div class="vital-card-icon">🚨</div>
+                    <div class="vital-card-label">High Risk</div>
+                    <div class="vital-card-value" id="highRiskCount">3</div>
+                    <div class="vital-card-unit">Immediate attention</div>
+                </div>
+                <div class="vital-card amber">
+                    <div class="vital-card-icon">⚠️</div>
+                    <div class="vital-card-label">Moderate Risk</div>
+                    <div class="vital-card-value">8</div>
+                    <div class="vital-card-unit">Monitor closely</div>
+                </div>
+                <div class="vital-card violet">
+                    <div class="vital-card-icon">✅</div>
+                    <div class="vital-card-label">Low Risk</div>
+                    <div class="vital-card-value">13</div>
+                    <div class="vital-card-unit">Stable</div>
+                </div>
+            </div>
+
+            <!-- Patient List + AI Panel -->
+            <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:24px;margin-bottom:24px;">
+                <!-- Patient Table -->
+                <div class="glass-card">
+                    <div class="glass-card-inner" style="padding:0;">
+                        <div
+                            style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;">
+                            <h4>Patient Roster</h4>
+                            <span class="badge badge-normal">24 Active</span>
+                        </div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="patientTable">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Week</th>
+                                        <th>BP</th>
+                                        <th>SpO₂</th>
+                                        <th>Risk</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="patientTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Clinical Detail -->
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                    <div class="glass-card">
+                        <div class="glass-card-inner">
+                            <h4 style="margin-bottom:16px;">🧠 GenAI Clinical Summary</h4>
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;"
+                                id="selectedPatientHeader">
+                                <div class="patient-avatar" style="width:42px;height:42px;font-size:1rem;"
+                                    id="selAvatar">R</div>
+                                <div>
+                                    <div style="font-weight:600;" id="selName">Radha Kumari</div>
+                                    <div style="font-size:0.78rem;color:var(--text-muted);" id="selDetails">Week 32 ·
+                                        High Risk</div>
+                                </div>
+                            </div>
+                            <div class="ai-insight" style="margin-bottom:16px;">
+                                <div class="ai-icon">🧠</div>
+                                <div>
+                                    <div class="ai-label">AI Clinical Assessment</div>
+                                    <div class="ai-text" id="aiClinicalText">Patient shows systolic BP trending from 128
+                                        → 148 mmHg over 72 hrs alongside reduced HRV (38ms). SpO₂ dipping to 92% during
+                                        rest. Pattern consistent with early-stage preeclampsia. Recommend: immediate BP
+                                        monitoring every 4hrs, urine protein dipstick, and consider antihypertensive
+                                        review.</div>
+                                </div>
+                            </div>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                <div class="btn btn-rose btn-sm">📞 Call Patient</div>
+                                <div class="btn btn-secondary btn-sm">📋 Add Note</div>
+                                <div class="btn btn-primary btn-sm">📹 Video Consult</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alert Inbox -->
+                    <div class="glass-card">
+                        <div class="glass-card-inner" style="padding:20px;">
+                            <h4 style="margin-bottom:14px;">🚨 Alert Inbox</h4>
+                            <div id="alertInbox" style="display:flex;flex-direction:column;gap:10px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Population Analytics -->
+            <div class="glass-card">
+                <div class="glass-card-inner">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                        <h4>📈 Population Analytics — District Overview</h4>
+                        <span class="badge badge-normal">Ramgarh District</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;">
+                        <div>
+                            <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">Risk Distribution
+                            </div>
+                            <div class="chart-container"><canvas id="riskPieChart"></canvas></div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">Preeclampsia
+                                Detections (monthly)</div>
+                            <div class="chart-container"><canvas id="detectionChart"></canvas></div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">Key Metrics</div>
+                            <div style="display:flex;flex-direction:column;gap:14px;margin-top:8px;">
+                                <div>
+                                    <div
+                                        style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;">
+                                        <span>Avg BP compliance rate</span><span
+                                            style="color:var(--accent-teal);">87%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width:87%;"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div
+                                        style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;">
+                                        <span>Antenatal visit completion</span><span
+                                            style="color:var(--accent-violet);">72%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill"
+                                            style="width:72%;background:linear-gradient(90deg,var(--accent-violet),#818cf8);">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div
+                                        style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;">
+                                        <span>Emergency hospitalisations</span><span style="color:var(--accent-rose);">↓
+                                            38%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width:38%;background:var(--gradient-rose);">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div
+                                        style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;">
+                                        <span>Patient satisfaction</span><span
+                                            style="color:var(--accent-amber);">91%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill"
+                                            style="width:91%;background:linear-gradient(90deg,var(--accent-amber),#ff6b6b);">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/doctor.js"></script>
+</body>
+
+</html>

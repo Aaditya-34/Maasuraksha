@@ -1,0 +1,977 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaaSuraksha — Sign In / Register</title>
+    <meta name="description" content="Login or create an account on MaaSuraksha AI Maternal Health Monitoring Platform">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0a0a1a;
+            --card: rgba(255, 255, 255, .04);
+            --border: rgba(255, 255, 255, .1);
+            --primary: #8b5cf6;
+            --primary-g: linear-gradient(135deg, #8b5cf6, #ec4899);
+            --accent: #06b6d4;
+            --text: #e2e8f0;
+            --muted: #64748b;
+            --error: #ef4444;
+            --success: #10b981;
+            --radius: 16px;
+            --inp-bg: rgba(255, 255, 255, .05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* ── Animated background ── */
+        .bg-scene {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(139, 92, 246, .18) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 50% at 80% 80%, rgba(236, 72, 153, .14) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 40% at 50% 50%, rgba(6, 182, 212, .08) 0%, transparent 70%),
+                var(--bg);
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: floatOrb 12s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 420px;
+            height: 420px;
+            background: rgba(139, 92, 246, .15);
+            top: -100px;
+            left: -80px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 320px;
+            height: 320px;
+            background: rgba(236, 72, 153, .12);
+            bottom: -80px;
+            right: -60px;
+            animation-delay: -4s;
+        }
+
+        .orb-3 {
+            width: 200px;
+            height: 200px;
+            background: rgba(6, 182, 212, .10);
+            top: 40%;
+            left: 60%;
+            animation-delay: -8s;
+        }
+
+        @keyframes floatOrb {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(20px, -30px) scale(1.05);
+            }
+
+            66% {
+                transform: translate(-15px, 20px) scale(0.95);
+            }
+        }
+
+        /* ── Layout ── */
+        .login-wrap {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 0;
+            width: min(940px, 95vw);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, .5), 0 0 0 1px var(--border);
+            animation: slideUp .5s cubic-bezier(.22, 1, .36, 1) both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(32px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Left panel (branding) ── */
+        .brand-panel {
+            flex: 0 0 360px;
+            background: linear-gradient(145deg, rgba(139, 92, 246, .25), rgba(236, 72, 153, .18));
+            background-image: linear-gradient(145deg, rgba(139, 92, 246, .25), rgba(236, 72, 153, .18)),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            border-right: 1px solid var(--border);
+            padding: 48px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .logo-mark {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, .3);
+        }
+
+        .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-name {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -.4px;
+        }
+
+        .logo-sub {
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+
+        .brand-headline {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.3;
+            letter-spacing: -.5px;
+        }
+
+        .brand-headline em {
+            font-style: normal;
+            background: var(--primary-g);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: auto;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .feat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, .08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        .feat-text {
+            font-size: 13.5px;
+            color: rgba(226, 232, 240, .75);
+            line-height: 1.4;
+        }
+
+        .feat-text strong {
+            color: var(--text);
+            font-weight: 600;
+            display: block;
+        }
+
+        /* ── Right panel (form) ── */
+        .form-panel {
+            flex: 1;
+            background: rgba(255, 255, 255, .03);
+            backdrop-filter: blur(24px);
+            padding: 40px 44px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        /* Mode switcher */
+        .mode-tabs {
+            display: flex;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 11px;
+            border: none;
+            font-family: inherit;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .25s;
+        }
+
+        .mode-tab.active {
+            background: var(--primary-g);
+            color: #fff;
+        }
+
+        .mode-tab.inactive {
+            background: transparent;
+            color: var(--muted);
+        }
+
+        .mode-tab.inactive:hover {
+            color: var(--text);
+        }
+
+        .form-title {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -.4px;
+        }
+
+        .form-subtitle {
+            font-size: 14px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        /* Role selector */
+        .role-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .role-tab {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--inp-bg);
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            text-align: center;
+            transition: all .2s;
+        }
+
+        .role-tab.active {
+            border-color: var(--primary);
+            background: rgba(139, 92, 246, .15);
+            color: #c4b5fd;
+        }
+
+        .role-tab:hover:not(.active) {
+            border-color: rgba(255, 255, 255, .25);
+            color: var(--text);
+        }
+
+        /* Forms */
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(226, 232, 240, .7);
+        }
+
+        .field-wrap {
+            position: relative;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--inp-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 14.5px;
+            transition: all .2s;
+            outline: none;
+        }
+
+        .field input:focus {
+            border-color: var(--primary);
+            background: rgba(139, 92, 246, .08);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, .15);
+        }
+
+        .field input.error {
+            border-color: var(--error);
+        }
+
+        .toggle-pw {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 16px;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .toggle-pw:hover {
+            color: var(--text);
+        }
+
+        /* Cred hint */
+        .cred-hint {
+            background: rgba(139, 92, 246, .1);
+            border: 1px solid rgba(139, 92, 246, .3);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 12.5px;
+            color: #c4b5fd;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .cred-hint.show {
+            display: block;
+            animation: fadeIn .2s ease;
+        }
+
+        /* Error / Offline */
+        .form-error {
+            background: rgba(239, 68, 68, .1);
+            border: 1px solid rgba(239, 68, 68, .3);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #fca5a5;
+            display: none;
+        }
+
+        .form-error.show {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: shake .3s;
+        }
+
+        .offline-notice {
+            display: none;
+            font-size: 12px;
+            color: #fbbf24;
+            background: rgba(251, 191, 36, .08);
+            border: 1px solid rgba(251, 191, 36, .2);
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+
+        .offline-notice.show {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Submit button */
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-g);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: .2px;
+            transition: all .2s;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, .35);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-login:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 28px rgba(139, 92, 246, .45);
+        }
+
+        .btn-login:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .btn-login .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, .3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+
+        .btn-login.loading .btn-text {
+            display: none;
+        }
+
+        .btn-login.loading .spinner {
+            display: inline-block;
+        }
+
+        /* Demo table */
+        .demo-toggle {
+            width: 100%;
+            padding: 10px;
+            background: none;
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+            color: var(--muted);
+            font-family: inherit;
+            font-size: 12.5px;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .demo-toggle:hover {
+            border-color: var(--primary);
+            color: var(--text);
+        }
+
+        .demo-table {
+            display: none;
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .demo-table.open {
+            display: table;
+            animation: fadeIn .2s;
+        }
+
+        .demo-table th {
+            text-align: left;
+            color: var(--muted);
+            padding: 5px 8px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 500;
+        }
+
+        .demo-table td {
+            padding: 6px 8px;
+            color: rgba(226, 232, 240, .8);
+            border-bottom: 1px solid rgba(255, 255, 255, .03);
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 20px;
+            font-size: 10.5px;
+            font-weight: 600;
+        }
+
+        .doctor-badge {
+            background: rgba(6, 182, 212, .2);
+            color: #67e8f9;
+        }
+
+        .asha-badge {
+            background: rgba(16, 185, 129, .2);
+            color: #6ee7b7;
+        }
+
+        .patient-badge {
+            background: rgba(139, 92, 246, .2);
+            color: #c4b5fd;
+        }
+
+        .fill-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--accent);
+            font-size: 11px;
+            font-family: inherit;
+            padding: 0;
+        }
+
+        .fill-btn:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-6px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(6px);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width:680px) {
+            .brand-panel {
+                display: none;
+            }
+
+            .form-panel {
+                padding: 36px 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-scene">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="login-wrap">
+
+        <!-- ── Left: Branding ── -->
+        <div class="brand-panel">
+            <div class="logo-mark">
+                <div class="logo-icon"><img src="images/logo.png" alt="MaaSuraksha Logo"></div>
+                <div class="logo-text">
+                    <span class="logo-name">MaaSuraksha</span>
+                    <span class="logo-sub">Maternal Health AI</span>
+                </div>
+            </div>
+
+            <div class="brand-headline">
+                <em>AI-Powered</em> continuous monitoring for every mother
+            </div>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feat-icon">📡</div>
+                    <div class="feat-text"><strong>Real-Time Vitals</strong>IoT wearable sync every 30 seconds</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feat-icon">🧠</div>
+                    <div class="feat-text"><strong>AI Risk Scoring</strong>Preeclampsia &amp; anemia detection</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feat-icon">🌐</div>
+                    <div class="feat-text"><strong>Offline-First</strong>Works without internet in rural areas</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feat-icon">🔔</div>
+                    <div class="feat-text"><strong>Instant Alerts</strong>Doctors notified of critical readings</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Right: Form ── -->
+        <div class="form-panel">
+
+            <!-- Tab switcher -->
+            <div class="mode-tabs">
+                <button id="tab-login" class="mode-tab active" onclick="switchTab('login')">🔑 Sign In</button>
+                <button id="tab-register" class="mode-tab inactive" onclick="switchTab('register')">✨ Register</button>
+            </div>
+
+            <!-- Shared: Error & Offline banners -->
+            <div class="form-error" id="form-error"><span>⚠️</span><span id="error-text">Invalid credentials.</span>
+            </div>
+            <div class="offline-notice" id="offline-notice">⚡ Backend offline — start <code>node server.js</code> in the
+                backend folder.</div>
+
+            <!-- ══════════ LOGIN PANEL ══════════ -->
+            <div id="panel-login">
+                <div>
+                    <div class="form-title">Welcome back</div>
+                    <div class="form-subtitle">Sign in to your MaaSuraksha account</div>
+                </div>
+
+                <div class="field" style="margin-top:4px;">
+                    <label>I am a…</label>
+                    <div class="role-tabs">
+                        <button class="role-tab active" onclick="selectRole('patient',this)">👤 Patient</button>
+                        <button class="role-tab" onclick="selectRole('doctor',this)">🩺 Doctor</button>
+                        <button class="role-tab" onclick="selectRole('asha',this)">🏘️ ASHA</button>
+                    </div>
+                </div>
+
+                <div class="cred-hint show" id="cred-hint">
+                    <strong>Patient demo:</strong> username <code>radha</code>, password <code>patient123</code>
+                </div>
+
+                <form id="login-form" onsubmit="handleLogin(event)" autocomplete="on">
+                    <div style="display:flex;flex-direction:column;gap:14px;">
+                        <div class="field">
+                            <label for="username">Username</label>
+                            <input id="username" type="text" placeholder="e.g. dr.meenakshi" autocomplete="username"
+                                required>
+                        </div>
+                        <div class="field">
+                            <label for="password">Password</label>
+                            <div class="field-wrap">
+                                <input id="password" type="password" placeholder="Enter your password"
+                                    autocomplete="current-password" required>
+                                <button type="button" class="toggle-pw" id="pw-toggle" onclick="togglePw()">👁</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-login" id="submit-btn">
+                            <div class="spinner"></div>
+                            <span class="btn-text">Sign In →</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div>
+                    <button class="demo-toggle" onclick="toggleDemo()">🔑 Show demo credentials</button>
+                    <table class="demo-table" id="demo-table">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Username</th>
+                                <th>Password</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="role-badge doctor-badge">Doctor</span></td>
+                                <td><code>dr.meenakshi</code></td>
+                                <td><code>doctor123</code></td>
+                                <td><button class="fill-btn" onclick="fillCreds('dr.meenakshi','doctor123')">Use
+                                        →</button></td>
+                            </tr>
+                            <tr>
+                                <td><span class="role-badge asha-badge">ASHA</span></td>
+                                <td><code>preeti</code></td>
+                                <td><code>asha123</code></td>
+                                <td><button class="fill-btn" onclick="fillCreds('preeti','asha123')">Use →</button></td>
+                            </tr>
+                            <tr>
+                                <td><span class="role-badge patient-badge">Patient</span></td>
+                                <td><code>radha</code></td>
+                                <td><code>patient123</code></td>
+                                <td><button class="fill-btn" onclick="fillCreds('radha','patient123')">Use →</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div><!-- /panel-login -->
+
+            <!-- ══════════ REGISTER PANEL ══════════ -->
+            <div id="panel-register" style="display:none;">
+                <div>
+                    <div class="form-title">Create account</div>
+                    <div class="form-subtitle">Join MaaSuraksha — takes 30 seconds</div>
+                </div>
+
+                <form id="register-form" onsubmit="handleRegister(event)" autocomplete="off">
+                    <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
+
+                        <div class="field">
+                            <label>I am a…</label>
+                            <div class="role-tabs">
+                                <button type="button" class="role-tab active" onclick="selectRegRole('patient',this)">👤
+                                    Patient</button>
+                                <button type="button" class="role-tab" onclick="selectRegRole('doctor',this)">🩺
+                                    Doctor</button>
+                                <button type="button" class="role-tab" onclick="selectRegRole('asha',this)">🏘️
+                                    ASHA</button>
+                            </div>
+                            <input type="hidden" id="reg-role" value="patient">
+                        </div>
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div class="field">
+                                <label for="reg-name">Full Name *</label>
+                                <input id="reg-name" type="text" placeholder="e.g. Priya Devi" required>
+                            </div>
+                            <div class="field">
+                                <label for="reg-username">Username *</label>
+                                <input id="reg-username" type="text" placeholder="e.g. priya.devi" required>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label for="reg-password">Password * <span style="font-size:11px;color:var(--muted);">(min 6
+                                    chars)</span></label>
+                            <div class="field-wrap">
+                                <input id="reg-password" type="password" placeholder="Choose a password" required>
+                                <button type="button" class="toggle-pw" onclick="toggleRegPw()">👁</button>
+                            </div>
+                        </div>
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div class="field">
+                                <label for="reg-phone">Phone</label>
+                                <input id="reg-phone" type="tel" placeholder="+91 98765 43210">
+                            </div>
+                            <div class="field">
+                                <label for="reg-village">Village / Area</label>
+                                <input id="reg-village" type="text" placeholder="e.g. Ramgarh">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label for="reg-district">District</label>
+                            <input id="reg-district" type="text" placeholder="e.g. Gaya, Bihar">
+                        </div>
+
+                        <button type="submit" class="btn-login" id="reg-btn">
+                            <div class="spinner"></div>
+                            <span class="btn-text">Create Account →</span>
+                        </button>
+
+                        <p style="font-size:12px;color:var(--muted);text-align:center;margin:0;">
+                            Already have an account?
+                            <button type="button" onclick="switchTab('login')"
+                                style="background:none;border:none;color:#c4b5fd;cursor:pointer;font-size:12px;font-family:inherit;padding:0;">
+                                Sign in →
+                            </button>
+                        </p>
+                    </div>
+                </form>
+            </div><!-- /panel-register -->
+
+        </div><!-- /form-panel -->
+    </div><!-- /login-wrap -->
+
+    <script>
+        // ── Redirect if already logged in ──────────────────────────
+        (function () {
+            const token = localStorage.getItem('ms_auth_token');
+            const user = JSON.parse(localStorage.getItem('ms_auth_user') || 'null');
+            if (token && user) {
+                const map = { doctor: 'dashboard-doctor.html', asha: 'dashboard-asha.html', patient: 'dashboard-patient.html' };
+                const dest = map[user.role];
+                if (dest) window.location.replace(dest);
+            }
+        })();
+
+        // ── Tab switcher ─────────────────────────────────────────────
+        function switchTab(tab) {
+            const isLogin = tab === 'login';
+            document.getElementById('panel-login').style.display = isLogin ? '' : 'none';
+            document.getElementById('panel-register').style.display = isLogin ? 'none' : '';
+            const tl = document.getElementById('tab-login');
+            const tr = document.getElementById('tab-register');
+            tl.className = 'mode-tab ' + (isLogin ? 'active' : 'inactive');
+            tr.className = 'mode-tab ' + (isLogin ? 'inactive' : 'active');
+            hideError();
+        }
+
+        // ── Login: role tabs ──────────────────────────────────────────
+        const hints = {
+            patient: '👤 <strong>Patient demo:</strong> username <code>radha</code>, password <code>patient123</code>',
+            doctor: '🩺 <strong>Doctor demo:</strong> username <code>dr.meenakshi</code>, password <code>doctor123</code>',
+            asha: '🏘️ <strong>ASHA demo:</strong> username <code>preeti</code>, password <code>asha123</code>',
+        };
+        function selectRole(role, el) {
+            document.querySelectorAll('#panel-login .role-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            const hint = document.getElementById('cred-hint');
+            hint.innerHTML = hints[role];
+            hint.classList.add('show');
+        }
+
+        // ── Register: role tabs ───────────────────────────────────────
+        function selectRegRole(role, el) {
+            document.querySelectorAll('#panel-register .role-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('reg-role').value = role;
+        }
+
+        // ── Password toggles ──────────────────────────────────────────
+        function togglePw() {
+            const inp = document.getElementById('password');
+            const btn = document.getElementById('pw-toggle');
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+            btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+        }
+        function toggleRegPw() {
+            const inp = document.getElementById('reg-password');
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+        }
+
+        // ── Demo fill ─────────────────────────────────────────────────
+        function fillCreds(u, p) {
+            document.getElementById('username').value = u;
+            document.getElementById('password').value = p;
+            document.getElementById('username').focus();
+        }
+        function toggleDemo() {
+            document.getElementById('demo-table').classList.toggle('open');
+        }
+
+        // ── Error helpers ─────────────────────────────────────────────
+        function showError(msg) {
+            const el = document.getElementById('form-error');
+            document.getElementById('error-text').textContent = msg;
+            el.classList.add('show');
+        }
+        function hideError() {
+            document.getElementById('form-error').classList.remove('show');
+            document.getElementById('offline-notice').classList.remove('show');
+        }
+
+        // ── LOGIN ─────────────────────────────────────────────────────
+        async function handleLogin(e) {
+            e.preventDefault();
+            hideError();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('submit-btn');
+            btn.classList.add('loading'); btn.disabled = true;
+            try {
+                const res = await fetch('http://localhost:3001/api/auth/login', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) { showError(data.error || 'Login failed.'); return; }
+                localStorage.setItem('ms_auth_token', data.token);
+                localStorage.setItem('ms_auth_user', JSON.stringify(data.user));
+                const map = { doctor: 'dashboard-doctor.html', asha: 'dashboard-asha.html', patient: 'dashboard-patient.html' };
+                window.location.replace(map[data.user.role] || 'index.html');
+            } catch {
+                document.getElementById('offline-notice').classList.add('show');
+                showError('Cannot reach server. Is backend running? (cd backend && node server.js)');
+            } finally {
+                btn.classList.remove('loading'); btn.disabled = false;
+            }
+        }
+
+        // ── REGISTER ──────────────────────────────────────────────────
+        async function handleRegister(e) {
+            e.preventDefault();
+            hideError();
+            const payload = {
+                name: document.getElementById('reg-name').value.trim(),
+                username: document.getElementById('reg-username').value.trim(),
+                password: document.getElementById('reg-password').value,
+                role: document.getElementById('reg-role').value,
+                phone: document.getElementById('reg-phone').value.trim() || undefined,
+                village: document.getElementById('reg-village').value.trim() || undefined,
+                district: document.getElementById('reg-district').value.trim() || undefined,
+            };
+            const btn = document.getElementById('reg-btn');
+            btn.classList.add('loading'); btn.disabled = true;
+            try {
+                const res = await fetch('http://localhost:3001/api/auth/register', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) { showError(data.error || 'Registration failed.'); return; }
+                // Auto-login
+                localStorage.setItem('ms_auth_token', data.token);
+                localStorage.setItem('ms_auth_user', JSON.stringify(data.user));
+                const map = { doctor: 'dashboard-doctor.html', asha: 'dashboard-asha.html', patient: 'dashboard-patient.html' };
+                window.location.replace(map[data.user.role] || 'index.html');
+            } catch {
+                document.getElementById('offline-notice').classList.add('show');
+                showError('Cannot reach server. Is backend running? (cd backend && node server.js)');
+            } finally {
+                btn.classList.remove('loading'); btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

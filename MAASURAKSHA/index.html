@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MaaSuraksha — AI Maternal Health Monitoring</title>
+  <meta name="description" content="MaaSuraksha: AI-enabled continuous maternal health monitoring for pregnant women in rural India — combining IoT wearables, mobile app, and GenAI clinical assistance." />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Landing-specific extras */
+    .hero-visual-wrap { position:relative; }
+    .nav-mobile-menu {
+      display:none; flex-direction:column; gap:16px;
+      position:absolute; top:100%; left:0; right:0;
+      background:rgba(6,6,18,0.97); padding:24px; border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    .nav-mobile-menu.open { display:flex; }
+    .nav-mobile-menu a { color:var(--text-secondary); font-size:1rem; padding:6px 0; }
+    .marquee-track {
+      display:flex; gap:60px; animation:marquee 22s linear infinite; white-space:nowrap;
+    }
+    @keyframes marquee { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+    .partner-logo {
+      display:flex; align-items:center; gap:10px;
+      font-size:0.9rem; font-weight:600; color:var(--text-muted); flex-shrink:0;
+    }
+    .partner-logo span { font-size:1.4rem; }
+    .testimonial-card { padding:32px; }
+    .testimonial-text { font-size:0.95rem; color:var(--text-secondary); line-height:1.8; font-style:italic; margin-bottom:20px; }
+    .testimonial-author { display:flex; align-items:center; gap:12px; }
+    .testimonial-avatar {
+      width:42px; height:42px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; font-size:1rem;
+    }
+    .testimonial-name { font-weight:600; font-size:0.9rem; }
+    .testimonial-role { font-size:0.78rem; color:var(--text-muted); }
+    .timeline { position:relative; }
+    .timeline::before {
+      content:''; position:absolute; left:50%; top:0; bottom:0; width:2px;
+      background:linear-gradient(to bottom, var(--accent-teal), var(--accent-violet));
+      transform:translateX(-50%);
+    }
+    .timeline-item { display:flex; gap:40px; margin-bottom:60px; align-items:flex-start; }
+    .timeline-item:nth-child(even) { flex-direction:row-reverse; }
+    .timeline-content { flex:1; }
+    .timeline-dot {
+      width:48px; height:48px; flex-shrink:0; border-radius:50%;
+      background:var(--gradient-teal); display:flex; align-items:center; justify-content:center;
+      font-size:1.2rem; box-shadow:var(--shadow-glow-teal); z-index:1;
+    }
+    .phase-badge {
+      display:inline-block; padding:3px 10px; border-radius:var(--radius-pill);
+      font-size:0.72rem; background:rgba(0,212,180,0.1);
+      color:var(--accent-teal); font-weight:600; margin-bottom:10px;
+    }
+    .demo-card { padding:0; overflow:hidden; }
+    .demo-top { padding:20px; background:rgba(0,212,180,0.05); border-bottom:var(--border-glass); display:flex; align-items:center; gap:10px; }
+    .demo-dots span { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:4px; }
+    .demo-body { padding:20px; }
+    .mini-vital { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .mini-vital-val { font-family:'Poppins',sans-serif; font-weight:700; font-size:1.05rem; }
+    .mini-vital-bar { height:4px; width:80px; border-radius:2px; background:rgba(255,255,255,0.07); overflow:hidden; }
+    .mini-vital-fill { height:100%; border-radius:2px; }
+  </style>
+</head>
+<body>
+
+<!-- ─ Navbar ───────────────────────────────────────────────── -->
+<nav class="navbar" id="navbar">
+  <div class="nav-logo">
+    <div class="nav-logo-icon">🤱</div>
+    <span>Maa<span class="gradient-text">Suraksha</span></span>
+  </div>
+
+  <ul class="nav-links">
+    <li><a href="#features" class="active">Features</a></li>
+    <li><a href="#how-it-works">How it Works</a></li>
+    <li><a href="#users">Who it Helps</a></li>
+    <li><a href="#impact">Impact</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+  </ul>
+
+  <div class="nav-cta">
+    <a href="dashboard-patient.html" class="btn btn-secondary btn-sm">Patient Portal</a>
+    <a href="dashboard-doctor.html" class="btn btn-primary btn-sm">Doctor Login</a>
+  </div>
+  <div class="hamburger" onclick="document.getElementById('mobileMenu').classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+<div id="mobileMenu" class="nav-mobile-menu">
+  <a href="#features">Features</a>
+  <a href="#how-it-works">How it Works</a>
+  <a href="#users">Who it Helps</a>
+  <a href="#impact">Impact</a>
+  <a href="dashboard-patient.html" class="btn btn-primary btn-sm" style="width:fit-content">Patient Portal</a>
+  <a href="dashboard-doctor.html" class="btn btn-secondary btn-sm" style="width:fit-content">Doctor Login</a>
+</div>
+
+<!-- ─ Hero ─────────────────────────────────────────────────── -->
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-content">
+    <div class="hero-text animate-fade-up">
+      <div class="hero-badge">
+        <span></span>
+        🇮🇳 &nbsp;Rural India Maternal Health Initiative
+      </div>
+
+      <h1 class="hero-title">
+        AI-Powered<br/>
+        <span class="gradient-text">Maternal Health</span><br/>
+        Monitoring
+      </h1>
+
+      <p class="hero-desc">
+        MaaSuraksha combines a <strong>wearable IoT band</strong>, an accessible <strong>mobile app</strong>,
+        and <strong>GenAI clinical intelligence</strong> to continuously monitor pregnant women —
+        detecting early signs of preeclampsia, anemia, and gestational diabetes before they become emergencies.
+      </p>
+
+      <div class="hero-actions">
+        <a href="dashboard-patient.html" class="btn btn-primary btn-lg" id="heroPatientBtn">
+          👩‍🍼 Patient Dashboard
+        </a>
+        <a href="dashboard-doctor.html" class="btn btn-secondary btn-lg" id="heroDoctorBtn">
+          🩺 Doctor View
+        </a>
+        <a href="dashboard-asha.html" class="btn btn-secondary btn-lg" id="heroAshaBtn">
+          🏥 ASHA Worker
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num"><span data-counter="68" data-suffix="%">0%</span></div>
+          <div class="hero-stat-label">Reduction in<br/>late detections</div>
+        </div>
+        <div>
+          <div class="hero-stat-num"><span data-counter="5" data-suffix="K+">0K+</span></div>
+          <div class="hero-stat-label">Women<br/>monitored</div>
+        </div>
+        <div>
+          <div class="hero-stat-num"><span data-counter="12" data-suffix=" States">0</span></div>
+          <div class="hero-stat-label">Target<br/>deployment</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visual: IoT Band Animation -->
+    <div class="hero-visual animate-fade anim-delay-2">
+      <div class="band-container">
+        <div class="band-ring band-ring-1"></div>
+        <div class="band-ring band-ring-2"></div>
+        <div class="band-ring band-ring-3"></div>
+        <div class="band-core">
+          <div class="band-icon heartbeat">🤱</div>
+          <div class="band-label">IoT BAND</div>
+        </div>
+
+        <!-- Floating vitals -->
+        <div class="float-vital">
+          <div class="vital-val" id="heroHR">82 bpm</div>
+          <div class="vital-lbl">❤️ Heart Rate</div>
+        </div>
+        <div class="float-vital">
+          <div class="vital-val" id="heroSpO2">97%</div>
+          <div class="vital-lbl">🫁 SpO₂</div>
+        </div>
+        <div class="float-vital">
+          <div class="vital-val" id="heroBP">118/76</div>
+          <div class="vital-lbl">💉 Blood Pressure</div>
+        </div>
+        <div class="float-vital">
+          <div class="vital-val" id="heroTemp">36.8°C</div>
+          <div class="vital-lbl">🌡️ Temp</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─ Partners Marquee ──────────────────────────────────────── -->
+<div style="background:var(--bg-secondary);border-top:var(--border-glass);border-bottom:var(--border-glass);padding:20px 0;overflow:hidden;">
+  <div class="marquee-track">
+    <div class="partner-logo"><span>🏥</span> NHM India</div>
+    <div class="partner-logo"><span>🤝</span> ASHA Network</div>
+    <div class="partner-logo"><span>🏛️</span> MoHFW</div>
+    <div class="partner-logo"><span>🌐</span> WHO SDGs</div>
+    <div class="partner-logo"><span>🔬</span> AIIMS Research</div>
+    <div class="partner-logo"><span>📡</span> ISRO Connect</div>
+    <div class="partner-logo"><span>💊</span> Janani Suraksha Yojana</div>
+    <!-- dup for seamless loop -->
+    <div class="partner-logo"><span>🏥</span> NHM India</div>
+    <div class="partner-logo"><span>🤝</span> ASHA Network</div>
+    <div class="partner-logo"><span>🏛️</span> MoHFW</div>
+    <div class="partner-logo"><span>🌐</span> WHO SDGs</div>
+    <div class="partner-logo"><span>🔬</span> AIIMS Research</div>
+    <div class="partner-logo"><span>📡</span> ISRO Connect</div>
+    <div class="partner-logo"><span>💊</span> Janani Suraksha Yojana</div>
+  </div>
+</div>
+
+<!-- ─ Features ──────────────────────────────────────────────── -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="text-center reveal">
+      <div class="section-tag">Core Technology</div>
+      <h2 class="section-title">Three Pillars of <span class="gradient-text">Continuous Care</span></h2>
+      <p class="section-desc">Every component is designed for the realities of rural India — low connectivity, diverse literacy levels, and limited specialist access.</p>
+    </div>
+
+    <div class="grid-3" style="margin-bottom:40px;">
+      <div class="glass-card feature-card reveal anim-delay-1">
+        <div class="glass-card-inner">
+          <div class="feature-icon teal">📡</div>
+          <h4>IoT Wearable Band</h4>
+          <p>Continuously measures Heart Rate, SpO₂, Blood Pressure, Temperature, and activity. Low-power BLE with 7-day battery life. Water-resistant for all-day wear.</p>
+          <div style="margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="tag">HR + HRV</span>
+            <span class="tag">SpO₂</span>
+            <span class="tag">BP</span>
+            <span class="tag">Temp</span>
+            <span class="tag">Activity</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card feature-card reveal anim-delay-2">
+        <div class="glass-card-inner">
+          <div class="feature-icon violet">📱</div>
+          <h4>Low-Literacy Mobile App</h4>
+          <p>Icon-first UI with voice prompts in Hindi and regional languages. Works on 2G. Designed with village women and ASHA workers through co-design sessions.</p>
+          <div style="margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="tag">Voice Alerts</span>
+            <span class="tag">Offline-first</span>
+            <span class="tag">Multilingual</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card feature-card reveal anim-delay-3">
+        <div class="glass-card-inner">
+          <div class="feature-icon rose">🧠</div>
+          <h4>GenAI Clinical Intelligence</h4>
+          <p>Goes beyond threshold alerts — analyzes physiological trends over time to predict high-risk pregnancies early. Generates clear explanations for patients and doctors alike.</p>
+          <div style="margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="tag">Trend Analysis</span>
+            <span class="tag">Risk Prediction</span>
+            <span class="tag">Explainable AI</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conditions detected -->
+    <div class="glass-card reveal">
+      <div class="glass-card-inner">
+        <h3 style="margin-bottom:24px;">Conditions Detected Early</h3>
+        <div class="grid-3">
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="font-size:2rem;flex-shrink:0;">💉</div>
+            <div>
+              <h4 style="margin-bottom:6px;color:var(--accent-rose);">Preeclampsia</h4>
+              <p style="font-size:0.87rem;color:var(--text-secondary);">Rising systolic/diastolic BP and HRV changes flag risk weeks before clinical presentation.</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="font-size:2rem;flex-shrink:0;">🩸</div>
+            <div>
+              <h4 style="margin-bottom:6px;color:var(--accent-amber);">Anemia</h4>
+              <p style="font-size:0.87rem;color:var(--text-secondary);">Persistent low SpO₂ and reduced activity patterns indicate hemoglobin deficiency.</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="font-size:2rem;flex-shrink:0;">🍬</div>
+            <div>
+              <h4 style="margin-bottom:6px;color:var(--accent-violet);">Gestational Diabetes</h4>
+              <p style="font-size:0.87rem;color:var(--text-secondary);">HR variability and activity patterns combined with vitals suggest GDM risk for targeted screening.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─ How it Works ──────────────────────────────────────────── -->
+<section class="section" id="how-it-works" style="background:var(--bg-secondary);">
+  <div class="container">
+    <div class="text-center reveal">
+      <div class="section-tag">System Flow</div>
+      <h2 class="section-title">How <span class="gradient-text">MaaSuraksha</span> Works</h2>
+      <p class="section-desc">A seamless three-stage loop from continuous sensing to actionable insight.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="glass-card step-card reveal anim-delay-1" style="background:var(--bg-card);">
+        <div class="step-num">1</div>
+        <div class="feature-icon teal" style="margin:16px auto;">📡</div>
+        <h3>Sense & Stream</h3>
+        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:12px;">The IoT band continuously captures vital signs and sends encrypted data to the cloud via the patient's phone — even with intermittent 2G connectivity through local caching.</p>
+      </div>
+
+      <div class="glass-card step-card reveal anim-delay-2" style="background:var(--bg-card);">
+        <div class="step-num">2</div>
+        <div class="feature-icon violet" style="margin:16px auto;">🧠</div>
+        <h3>AI Risk Analysis</h3>
+        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:12px;">Cloud AI analyzes physiological trends over time — not just instant thresholds. GenAI generates plain-language health summaries and clinical reports personalized for each stakeholder.</p>
+      </div>
+
+      <div class="glass-card step-card reveal anim-delay-3" style="background:var(--bg-card);">
+        <div class="step-num">3</div>
+        <div class="feature-icon rose" style="margin:16px auto;">🔔</div>
+        <h3>Targeted Action</h3>
+        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:12px;">Patients receive voice alerts in their language. ASHA workers get field checklists. Doctors receive prioritized clinical summaries — enabling timely, hierarchical intervention.</p>
+      </div>
+    </div>
+
+    <!-- Live Demo Preview -->
+    <div class="glass-card demo-card reveal mt-6">
+      <div class="demo-top">
+        <div>
+          <div class="demo-dots">
+            <span style="background:#ff5f56;"></span>
+            <span style="background:#ffbd2e;"></span>
+            <span style="background:#27c93f;"></span>
+          </div>
+        </div>
+        <span style="flex:1;text-align:center;color:var(--text-muted);font-size:0.8rem;">🤱 MaaSuraksha Patient App — Live Vitals</span>
+        <span class="badge badge-normal"><span class="badge-dot"></span> Live</span>
+      </div>
+      <div class="demo-body">
+        <div class="grid-4">
+          <div class="mini-vital">
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;">❤️ Heart Rate</div>
+              <div class="mini-vital-val" id="demoHR" style="color:var(--accent-teal);">82 bpm</div>
+            </div>
+            <div class="mini-vital-bar"><div class="mini-vital-fill" id="demoHRBar" style="background:var(--gradient-teal);width:65%;"></div></div>
+          </div>
+          <div class="mini-vital">
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;">🫁 SpO₂</div>
+              <div class="mini-vital-val" id="demoSpO2" style="color:var(--accent-violet);">97%</div>
+            </div>
+            <div class="mini-vital-bar"><div class="mini-vital-fill" id="demoSpO2Bar" style="background:linear-gradient(90deg,var(--accent-violet),#818cf8);width:97%;"></div></div>
+          </div>
+          <div class="mini-vital">
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;">💉 Blood Pressure</div>
+              <div class="mini-vital-val" id="demoBP" style="color:var(--accent-rose);">118/76</div>
+            </div>
+            <div class="mini-vital-bar"><div class="mini-vital-fill" id="demoBPBar" style="background:var(--gradient-rose);width:55%;"></div></div>
+          </div>
+          <div class="mini-vital">
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;">🌡️ Temperature</div>
+              <div class="mini-vital-val" id="demoTemp" style="color:var(--accent-amber);">36.8°C</div>
+            </div>
+            <div class="mini-vital-bar"><div class="mini-vital-fill" id="demoTempBar" style="background:linear-gradient(90deg,var(--accent-amber),#ff6b6b);width:50%;"></div></div>
+          </div>
+        </div>
+        <div class="ai-insight mt-3">
+          <div class="ai-icon">🧠</div>
+          <div>
+            <div class="ai-label">GenAI Health Insight</div>
+            <div class="ai-text" id="demoAI">✨ Your vitals are stable. Keep staying hydrated and take rest as needed. Your next check-up is in 3 days.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─ Who it Helps ──────────────────────────────────────────── -->
+<section class="section" id="users">
+  <div class="container">
+    <div class="text-center reveal">
+      <div class="section-tag">Target Users</div>
+      <h2 class="section-title">Built for <span class="gradient-text">Every Stakeholder</span></h2>
+      <p class="section-desc">A unified platform with tailored views for each actor in the maternal healthcare ecosystem.</p>
+    </div>
+
+    <div class="grid-3">
+      <a href="dashboard-patient.html" class="glass-card user-card reveal anim-delay-1" style="display:block;cursor:pointer;">
+        <div class="glass-card-inner">
+          <span class="user-emoji">👩‍🍼</span>
+          <h3>Pregnant Women</h3>
+          <p>Home monitoring with voice alerts, simple icons, and AI health explanations — designed for low literacy.</p>
+          <div class="user-features">
+            <div class="user-feature-item">Real-time vitals on screen</div>
+            <div class="user-feature-item">Voice alerts in Hindi/Regional</div>
+            <div class="user-feature-item">AI health summaries</div>
+            <div class="user-feature-item">Offline functionality</div>
+            <div class="user-feature-item">Medication reminders</div>
+          </div>
+          <div class="btn btn-primary mt-3" style="width:100%;justify-content:center;">Open Patient Dashboard →</div>
+        </div>
+      </a>
+
+      <a href="dashboard-doctor.html" class="glass-card user-card reveal anim-delay-2" style="display:block;cursor:pointer;">
+        <div class="glass-card-inner">
+          <span class="user-emoji">👩‍⚕️</span>
+          <h3>Doctors & Gynecologists</h3>
+          <p>Clinical dashboard with risk-prioritized patient lists, trend charts, and GenAI clinical summaries.</p>
+          <div class="user-features">
+            <div class="user-feature-item">Risk-sorted patient roster</div>
+            <div class="user-feature-item">Historical trend analysis</div>
+            <div class="user-feature-item">GenAI clinical reports</div>
+            <div class="user-feature-item">Alert inbox</div>
+            <div class="user-feature-item">Telemedicine integration</div>
+          </div>
+          <div class="btn btn-primary mt-3" style="width:100%;justify-content:center;">Open Doctor Dashboard →</div>
+        </div>
+      </a>
+
+      <a href="dashboard-asha.html" class="glass-card user-card reveal anim-delay-3" style="display:block;cursor:pointer;">
+        <div class="glass-card-inner">
+          <span class="user-emoji">🏥</span>
+          <h3>ASHA Workers</h3>
+          <p>Field-friendly dashboard for village-level patient management, check-ins, and flagging high-risk cases.</p>
+          <div class="user-features">
+            <div class="user-feature-item">Village patient list</div>
+            <div class="user-feature-item">Tap-based check-in</div>
+            <div class="user-feature-item">Flag for doctor review</div>
+            <div class="user-feature-item">Community stats</div>
+            <div class="user-feature-item">Works offline</div>
+          </div>
+          <div class="btn btn-secondary mt-3" style="width:100%;justify-content:center;">Open ASHA Dashboard →</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─ Impact Stats ───────────────────────────────────────────── -->
+<section class="section" id="impact" style="background:var(--bg-secondary);">
+  <div class="container">
+    <div class="text-center reveal">
+      <div class="section-tag">Impact</div>
+      <h2 class="section-title">Measurable <span class="gradient-text">Outcomes</span></h2>
+      <p class="section-desc">Our projected impact metrics based on early pilot data and research literature.</p>
+    </div>
+
+    <div class="stats-bar reveal">
+      <div class="stat-item">
+        <div class="stat-item-num gradient-text"><span data-counter="68" data-suffix="%">0%</span></div>
+        <div class="stat-item-label">Earlier preeclampsia detection</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-item-num gradient-text-rose"><span data-counter="52" data-suffix="%">0%</span></div>
+        <div class="stat-item-label">Fewer emergency admissions</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-item-num" style="color:var(--accent-violet);"><span data-counter="3" data-suffix="x">0</span></div>
+        <div class="stat-item-label">Faster clinical decision-making</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-item-num" style="color:var(--accent-amber);"><span data-counter="91" data-suffix="%">0%</span></div>
+        <div class="stat-item-label">Patient satisfaction score</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-item-num gradient-text"><span data-counter="500" data-suffix="+">0</span></div>
+        <div class="stat-item-label">ASHA workers trained</div>
+      </div>
+    </div>
+
+    <!-- Problem statement cards -->
+    <div class="grid-3 mt-6">
+      <div class="glass-card reveal anim-delay-1">
+        <div class="glass-card-inner">
+          <div style="font-size:2rem;margin-bottom:12px;">⚠️</div>
+          <h4 style="color:var(--accent-rose);margin-bottom:10px;">The Problem</h4>
+          <ul style="margin-top:8px;display:flex;flex-direction:column;gap:8px;">
+            <li style="font-size:0.87rem;color:var(--text-secondary);display:flex;gap:8px;"><span>•</span>Physiological warning signs appear early but rarely monitored continuously</li>
+            <li style="font-size:0.87rem;color:var(--text-secondary);display:flex;gap:8px;"><span>•</span>Doctors face data overload from episodic manual readings</li>
+            <li style="font-size:0.87rem;color:var(--text-secondary);display:flex;gap:8px;"><span>•</span>Patients struggle to understand medical alerts</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="glass-card reveal anim-delay-2">
+        <div class="glass-card-inner">
+          <div style="font-size:2rem;margin-bottom:12px;">🎯</div>
+          <h4 style="color:var(--accent-teal);margin-bottom:10px;">Our Novelty</h4>
+          <p style="font-size:0.87rem;color:var(--text-secondary);line-height:1.7;">Unlike typical systems that trigger simple threshold alerts, MaaSuraksha analyzes <strong style="color:var(--text-primary);">physiological trends over time</strong> to predict high-risk pregnancies early, then uses GenAI to transform complex data into clear, personalized explanations.</p>
+        </div>
+      </div>
+
+      <div class="glass-card reveal anim-delay-3">
+        <div class="glass-card-inner">
+          <div style="font-size:2rem;margin-bottom:12px;">🌱</div>
+          <h4 style="color:var(--accent-amber);margin-bottom:10px;">Our Promise</h4>
+          <p style="font-size:0.87rem;color:var(--text-secondary);line-height:1.7;">Shift maternal care from <strong style="color:var(--accent-rose);">reactive emergency response</strong> to <strong style="color:var(--accent-teal);">proactive, preventive support</strong> — bringing safer pregnancies and healthier babies to rural communities across India.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─ Testimonials ───────────────────────────────────────────── -->
+<section class="section" id="testimonials">
+  <div class="container">
+    <div class="text-center reveal">
+      <div class="section-tag">Community Voices</div>
+      <h2 class="section-title">Trusted by <span class="gradient-text">Real Families</span></h2>
+    </div>
+
+    <div class="grid-3">
+      <div class="glass-card testimonial-card reveal anim-delay-1">
+        <div class="glass-card-inner">
+          <div class="testimonial-text">"Pehle mujhe nahi pata tha ki mera BP badh raha hai. Ab band mujhe batata hai. Didi ASHA ne doctor ko bulaya aur sab theek ho gaya."</div>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar" style="background:var(--gradient-rose);">S</div>
+            <div>
+              <div class="testimonial-name">Savitri Devi</div>
+              <div class="testimonial-role">Patient, Jharkhand</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card testimonial-card reveal anim-delay-2">
+        <div class="glass-card-inner">
+          <div class="testimonial-text">"As an ASHA worker covering 8 villages, this app helps me prioritize who needs immediate attention. The AI summary is in simple language I can explain to doctors."</div>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar" style="background:var(--gradient-teal);">P</div>
+            <div>
+              <div class="testimonial-name">Preeti Kumari</div>
+              <div class="testimonial-role">ASHA Worker, Bihar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card testimonial-card reveal anim-delay-3">
+        <div class="glass-card-inner">
+          <div class="testimonial-text">"The trend-based risk scores are far more useful than point-in-time readings. I can now make informed decisions even for patients I haven't physically seen."</div>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar" style="background:linear-gradient(135deg,var(--accent-violet),#818cf8);">D</div>
+            <div>
+              <div class="testimonial-name">Dr. Meenakshi Rao</div>
+              <div class="testimonial-role">Gynecologist, Rajasthan PHC</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─ Roadmap ────────────────────────────────────────────────── -->
+<section class="section" id="roadmap" style="background:var(--bg-secondary);">
+  <div class="container">
+    <div class="text-center reveal">
+      <div class="section-tag">Path to Scale</div>
+      <h2 class="section-title">Our <span class="gradient-text">Rollout Roadmap</span></h2>
+    </div>
+
+    <div class="grid-3 reveal">
+      <div class="glass-card" style="border-color:rgba(0,212,180,0.3);">
+        <div class="glass-card-inner">
+          <div class="phase-badge">Phase 1 • 2025</div>
+          <h3 style="margin-bottom:12px;">🔬 Pilot & Refine</h3>
+          <ul style="display:flex;flex-direction:column;gap:10px;">
+            <li style="font-size:0.87rem;color:var(--text-secondary);">✅ Finalize IoT device specs</li>
+            <li style="font-size:0.87rem;color:var(--text-secondary);">✅ Clinical advisory board</li>
+            <li style="font-size:0.87rem;color:var(--text-secondary);">🔄 Pilot with 100 women (2 districts)</li>
+            <li style="font-size:0.87rem;color:var(--text-secondary);">🔄 Ethics board approval</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="glass-card" style="border-color:rgba(167,139,250,0.3);">
+        <div class="glass-card-inner">
+          <div class="phase-badge" style="background:rgba(167,139,250,0.1);color:var(--accent-violet);">Phase 2 • 2026</div>
+          <h3 style="margin-bottom:12px;">📈 District Rollout</h3>
+          <ul style="display:flex;flex-direction:column;gap:10px;">
+            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ Integrate with NHM systems</li>
+            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ 5,000+ women across 5 districts</li>
+            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ ASHA training program (500+)</li>
+            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ Telemedicine tie-ups</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="glass-card" style="border-color:rgba(255,107,157,0.3);">
+        <div class="glass-card-inner">
+          <div class="phase-badge" style="background:rgba(255,107,157,0.1);color:var(--accent-rose);">Phase 3 • 2027+</div>
+          <h3 style="margin-bottom:12px;">🚀 National Scale</h3>
+          <ul style="display:flex;flex-direction:column;gap:10px;">
+            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ 12 state integration</li>
+            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ Government program partnerships</li>
+            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ Local device manufacturing</li>
+            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ Open-source AI models</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─ CTA ───────────────────────────────────────────────────── -->
+<section class="section">
+  <div class="container">
+    <div class="glass-card reveal" style="background:linear-gradient(135deg,rgba(0,212,180,0.1),rgba(167,139,250,0.08));border-color:rgba(0,212,180,0.2);">
+      <div class="glass-card-inner text-center" style="padding:60px;">
+        <div style="font-size:3rem;margin-bottom:16px;">🤱</div>
+        <h2 style="margin-bottom:16px;">A Reassuring <span class="gradient-text">Promise</span></h2>
+        <p style="color:var(--text-secondary);max-width:600px;margin:0 auto 36px;font-size:1rem;line-height:1.8;">
+          MaaSuraksha is designed to be a reliable companion for pregnant women and the healthcare teams who support them. By combining continuous monitoring, explainable AI, and local human support, we can bring safer pregnancies and healthier babies to rural communities across India.
+        </p>
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+          <a href="dashboard-patient.html" class="btn btn-primary btn-lg">👩‍🍼 Patient Dashboard</a>
+          <a href="dashboard-doctor.html" class="btn btn-secondary btn-lg">🩺 Doctor Dashboard</a>
+          <a href="dashboard-asha.html" class="btn btn-secondary btn-lg">🏥 ASHA Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─ Footer ─────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="margin-bottom:12px;">
+          <div class="nav-logo-icon">🤱</div>
+          <span>Maa<span class="gradient-text">Suraksha</span></span>
+        </div>
+        <p>AI-enabled continuous maternal health monitoring for rural and semi-urban India. Making safer pregnancies accessible to every woman.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Dashboards</h5>
+        <ul>
+          <li><a href="dashboard-patient.html">Patient Portal</a></li>
+          <li><a href="dashboard-doctor.html">Doctor Dashboard</a></li>
+          <li><a href="dashboard-asha.html">ASHA Worker</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Solution</h5>
+        <ul>
+          <li><a href="#features">IoT Band</a></li>
+          <li><a href="#features">Mobile App</a></li>
+          <li><a href="#features">GenAI Engine</a></li>
+          <li><a href="#roadmap">Roadmap</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Mission</h5>
+        <ul>
+          <li><a href="#impact">Impact</a></li>
+          <li><a href="#users">Community</a></li>
+          <li><a href="#testimonials">Stories</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 MaaSuraksha. Built for safer pregnancies across India 🇮🇳</span>
+      <div class="footer-badges">
+        <span class="footer-badge">🔒 HIPAA-aligned</span>
+        <span class="footer-badge">🌐 Offline-first</span>
+        <span class="footer-badge">🇮🇳 Bharat Ready</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+  // Hero floating vitals update
+  setInterval(() => {
+    const vitals = VitalsEngine.tick();
+    const setEl = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
+    setEl('heroHR', `${Math.round(vitals.hr)} bpm`);
+    setEl('heroSpO2', `${Math.round(vitals.spo2)}%`);
+    setEl('heroBP', `${Math.round(vitals.systolic)}/${Math.round(vitals.diastolic)}`);
+    setEl('heroTemp', `${vitals.temp.toFixed(1)}°C`);
+    // Demo section vitals
+    setEl('demoHR', `${Math.round(vitals.hr)} bpm`);
+    setEl('demoSpO2', `${Math.round(vitals.spo2)}%`);
+    setEl('demoBP', `${Math.round(vitals.systolic)}/${Math.round(vitals.diastolic)}`);
+    setEl('demoTemp', `${vitals.temp.toFixed(1)}°C`);
+
+    const setBar = (id, pct) => { const e = document.getElementById(id); if(e) e.style.width = pct + '%'; };
+    setBar('demoHRBar',   Math.round(((vitals.hr - 60)/(110-60))*100));
+    setBar('demoSpO2Bar', Math.round(vitals.spo2));
+    setBar('demoBPBar',   Math.round(((vitals.systolic - 90)/(160-90))*100));
+    setBar('demoTempBar', Math.round(((vitals.temp - 36)/(38.5-36))*70 + 20));
+
+    const risk = VitalsEngine.riskLevel();
+    const insights = { low: LANG.en.aiInsight_low, moderate: LANG.en.aiInsight_moderate, high: LANG.en.aiInsight_high };
+    const ai = document.getElementById('demoAI'); if(ai) ai.textContent = insights[risk];
+  }, 2500);
+</script>
+</body>
+</html>
