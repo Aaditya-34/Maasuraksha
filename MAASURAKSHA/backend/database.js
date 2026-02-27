@@ -130,6 +130,37 @@ async function initDatabase() {
       status       TEXT    DEFAULT 'upcoming',
       notes        TEXT
     );
+    CREATE TABLE IF NOT EXISTS user_input_data (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      patient_id   INTEGER NOT NULL,
+      recorded_at  TEXT    DEFAULT (datetime('now')),
+      headache     INTEGER DEFAULT 0,
+      swelling     INTEGER DEFAULT 0,
+      blurred_vision INTEGER DEFAULT 0,
+      nausea       INTEGER DEFAULT 0,
+      abdominal_pain INTEGER DEFAULT 0,
+      fatigue      INTEGER DEFAULT 0,
+      fever        INTEGER DEFAULT 0,
+      reduced_fetal_movement INTEGER DEFAULT 0,
+      notes        TEXT    DEFAULT '',
+      severity     TEXT    DEFAULT 'mild'
+    );
+
+    CREATE TABLE IF NOT EXISTS nutrition_logs (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      patient_id   INTEGER NOT NULL,
+      logged_at    TEXT    DEFAULT (datetime('now')),
+      meal_type    TEXT    DEFAULT 'lunch',
+      water_glasses INTEGER DEFAULT 0,
+      iron_taken   INTEGER DEFAULT 0,
+      folic_taken  INTEGER DEFAULT 0,
+      calcium_taken INTEGER DEFAULT 0,
+      fruits       INTEGER DEFAULT 0,
+      vegetables   INTEGER DEFAULT 0,
+      protein      INTEGER DEFAULT 0,
+      dairy        INTEGER DEFAULT 0,
+      notes        TEXT    DEFAULT ''
+    );
   `);
 
   save();

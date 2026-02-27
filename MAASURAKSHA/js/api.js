@@ -211,7 +211,39 @@ async function syncLiveVitals(patientId, engine) {
         });
     } catch { /* silent — will retry on next tick */ }
 }
+/* ══════════════════════════════════════════════════════════════
+   SYMPTOMS
+══════════════════════════════════════════════════════════════ */
+async function fetchSymptoms(patientId) {
+    if (!API_ONLINE) return null;
+    const { data } = await apiFetch(`/patients/${patientId}/symptoms`);
+    return data;
+}
 
+async function postSymptoms(patientId, symptoms) {
+    if (!API_ONLINE) return null;
+    return apiFetch(`/patients/${patientId}/symptoms`, {
+        method: 'POST',
+        body: JSON.stringify(symptoms)
+    });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   NUTRITION
+══════════════════════════════════════════════════════════════ */
+async function fetchNutrition(patientId) {
+    if (!API_ONLINE) return null;
+    const { data } = await apiFetch(`/patients/${patientId}/nutrition`);
+    return data;
+}
+
+async function postNutrition(patientId, log) {
+    if (!API_ONLINE) return null;
+    return apiFetch(`/patients/${patientId}/nutrition`, {
+        method: 'POST',
+        body: JSON.stringify(log)
+    });
+}
 /* ── Auto-initialise on load ─────────────────────────────── */
 checkApiHealth();
 
@@ -234,5 +266,9 @@ Object.assign(window.MaaSuraksha, {
     fetchAnalyticsOverview,
     fetchVitalsTrend,
     syncLiveVitals,
+    fetchSymptoms,
+    postSymptoms,
+    fetchNutrition,
+    postNutrition,
     get isOnline() { return API_ONLINE; }
 });

@@ -463,7 +463,89 @@ ${patientContext ? `\nPATIENT CONTEXT:\n${patientContext}` : ''}`;
     res.status(500).json({ success: false, error: 'AI service error: ' + err.message });
   }
 });
+/* ══════════════════════════════════════════════════════════════
+   SYMPTOMS (user_input_data)
+═══════════════════════════════════════════════════════════════ */
 
+// GET /api/patients/:id/symptoms
+app.get('/api/patients/:id/symptoms', (req, res) => {
+  const rows = all(
+    'SELECT * FROM user_input_data WHERE patient_id = ? ORDER BY recorded_at DESC LIMIT 20',
+    [req.params.id]
+  );
+  res.json({ success: true, count: rows.length, data: rows });
+});
+
+// POST /api/patients/:id/symptoms
+app.post('/api/patients/:id/symptoms', (req, res) => {
+  const {
+    headache, swelling, blurred_vision, nausea,
+    abdominal_pain, fatigue, fever, reduced_fetal_movement,
+    notes, severity
+  } = req.body;
+  const pid = req.params.id;
+
+  const info = run(
+    `INSERT INTO user_input_data
+      (patient_id, headache, swelling, blurred_vision, nausea,
+       abdominal_pain, fatigue, fever, reduced_fetal_movement, notes, severity)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+    [pid,
+     headache ? 1 : 0, swelling ? 1 : 0, blurred_vision ? 1 : 0,
+     nausea ? 1 : 0, abdominal_pain ? 1 : 0, fatigue ? 1 : 0,
+     fever ? 1 : 0, reduced_fetal_movement ? 1 : 0,
+     notes || '', severity || 'mild']
+  );
+
+  // Auto-generate alert if severe symptoms
+  const severeSymptoms = [blurred_vision, abdominal_pain, reduced_fetal_movement];
+  if (severity === 'severe' || severeSymptoms.some(Boolean)) {
+    run('INSERT INTO alerts (patient_id, severity, type, message) VALUES (?,?,?,?)', [
+      pid, 'warning', 'symptom_report',
+      `Patient reported severe symptoms: ${[
+        headache && 'headache', swelling && 'swelling',
+        blurred_vision && 'blurred vision', abdominal_pain && 'abdominal pain',
+        reduced_fetal_movement && 'reduced fetal movement'
+      ].filter(Boolean).join(', ')}.`
+    ]);
+  }
+
+  res.status(201).json({ success: true, id: info.lastInsertRowid });
+});
+
+/* ══════════════════════════════════════════════════════════════
+   NUTRITION LOGS
+═══════════════════════════════════════════════════════════════ */
+
+// GET /api/patients/:id/nutrition
+app.get('/api/patients/:id/nutrition', (req, res) => {
+  const rows = all(
+    'SELECT * FROM nutrition_logs WHERE patient_id = ? ORDER BY logged_at DESC LIMIT 14',
+    [req.params.id]
+  );
+  res.json({ success: true, count: rows.length, data: rows });
+});
+
+// POST /api/patients/:id/nutrition
+app.post('/api/patients/:id/nutrition', (req, res) => {
+  const {
+    meal_type, water_glasses, iron_taken, folic_taken,
+    calcium_taken, fruits, vegetables, protein, dairy, notes
+  } = req.body;
+
+  const info = run(
+    `INSERT INTO nutrition_logs
+      (patient_id, meal_type, water_glasses, iron_taken, folic_taken,
+       calcium_taken, fruits, vegetables, protein, dairy, notes)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+    [req.params.id,
+     meal_type || 'lunch',
+     water_glasses || 0, iron_taken ? 1 : 0, folic_taken ? 1 : 0,
+     calcium_taken ? 1 : 0, fruits || 0, vegetables || 0,
+     protein || 0, dairy || 0, notes || '']
+  );
+  res.status(201).json({ success: true, id: info.lastInsertRowid });
+});
 /* ── 404 ─────────────────────────────────────────────────────── */
 app.use((req, res) => res.status(404).json({ success: false, error: `Route not found: ${req.method} ${req.url}` }));
 

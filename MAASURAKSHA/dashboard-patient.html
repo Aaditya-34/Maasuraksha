@@ -300,7 +300,146 @@
                     </div>
                 </div>
             </div>
+            <!-- Symptom Input Section -->
+            <div class="glass-card" style="margin-bottom:24px;">
+                <div class="glass-card-inner">
+                    <h4 style="margin-bottom:4px;">🤒 How Are You Feeling Today?</h4>
+                    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:18px;">
+                        Check any symptoms you are experiencing right now.
+                    </p>
+                    <div id="symptomSuccess" style="display:none;padding:10px 14px;background:rgba(0,212,180,0.12);
+                        border:1px solid rgba(0,212,180,0.3);border-radius:10px;color:var(--accent-teal);
+                        font-size:0.87rem;margin-bottom:14px;">
+                        ✅ Symptoms saved successfully!
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+                        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,0.06);">
+                            <input type="checkbox" id="sym_headache" class="sym-checkbox" style="width:16px;height:16px;accent-color:var(--accent-violet);"> 🤕 Headache
+                        </label>
+                        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,0.06);">
+                            <input type="checkbox" id="sym_swelling" class="sym-checkbox" style="width:16px;height:16px;accent-color:var(--accent-violet);"> 🦶 Swelling
+                        </label>
+                        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,0.06);">
+                            <input type="checkbox" id="sym_blurred_vision" class="sym-checkbox" style="width:16px;height:16px;accent-color:var(--accent-rose);"> 👁️ Blurred Vision
+                        </label>
+                        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,0.06);">
+                            <input type="checkbox" id="sym_nausea" class="sym-checkbox" style="width:16px;height:16px;accent-color:var(--accent-violet);"> 🤢 Nausea
+                        </label>
+                        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,0.06);">
+                            <input type="checkbox" id="sym_abdominal_pain" class="sym-checkbox" style="width:16px;height:16px;accent-color:var(--accent-rose);"> 😣 Abdominal Pain
+                        </label>
+                        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,0.06);">
+                            <input type="checkbox" id="sym_fatigue" class="sym-checkbox" style="width:16px;height:16px;accent-color:var(--accent-violet);"> 😴 Fatigue
+                        </label>
+                        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,0.06);">
+                            <input type="checkbox" id="sym_fever" class="sym-checkbox" style="width:16px;height:16px;accent-color:var(--accent-rose);"> 🌡️ Fever
+                        </label>
+                        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,0.06);">
+                            <input type="checkbox" id="sym_reduced_fetal_movement" class="sym-checkbox" style="width:16px;height:16px;accent-color:var(--accent-rose);"> 👶 Reduced Fetal Movement
+                        </label>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;">Severity</label>
+                            <select id="sym_severity" style="width:100%;background:var(--bg-card);border:var(--border-glass);
+                                color:var(--text-primary);padding:10px 12px;border-radius:10px;font-family:inherit;font-size:0.87rem;">
+                                <option value="mild">😊 Mild</option>
+                                <option value="moderate">😟 Moderate</option>
+                                <option value="severe">😰 Severe</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;">Last symptom summary</label>
+                            <div id="lastSymptomSummary" style="font-size:0.82rem;color:var(--text-secondary);
+                                padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:10px;
+                                border:var(--border-glass);">No symptoms reported recently.</div>
+                        </div>
+                    </div>
+                    <textarea id="sym_notes" placeholder="Any other notes for your doctor or ASHA worker…"
+                        style="width:100%;background:rgba(255,255,255,0.04);border:var(--border-glass);
+                        color:var(--text-primary);padding:12px;border-radius:10px;font-family:inherit;
+                        font-size:0.87rem;resize:vertical;min-height:70px;box-sizing:border-box;margin-bottom:14px;"></textarea>
+                    <button id="symptomSubmitBtn" onclick="submitSymptoms()"
+                        style="width:100%;padding:12px;background:linear-gradient(135deg,var(--accent-violet),#ec4899);
+                        border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:0.9rem;
+                        font-weight:600;cursor:pointer;">✅ Submit Symptoms</button>
+                </div>
+            </div>
 
+            <!-- Nutrition Log Section -->
+            <div class="glass-card" style="margin-bottom:24px;">
+                <div class="glass-card-inner">
+                    <h4 style="margin-bottom:4px;">🥗 Nutrition Log</h4>
+                    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:18px;">
+                        Track your daily food intake and supplements.
+                    </p>
+                    <div id="nutritionSuccess" style="display:none;padding:10px 14px;background:rgba(0,212,180,0.12);
+                        border:1px solid rgba(0,212,180,0.3);border-radius:10px;color:var(--accent-teal);
+                        font-size:0.87rem;margin-bottom:14px;">
+                        ✅ Nutrition log saved!
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+                        <div>
+                            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;">Meal Type</label>
+                            <select id="nut_meal_type" style="width:100%;background:var(--bg-card);border:var(--border-glass);
+                                color:var(--text-primary);padding:10px 12px;border-radius:10px;font-family:inherit;font-size:0.87rem;">
+                                <option value="breakfast">🌅 Breakfast</option>
+                                <option value="lunch" selected>☀️ Lunch</option>
+                                <option value="dinner">🌙 Dinner</option>
+                                <option value="snack">🍎 Snack</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;">💧 Water (glasses today)</label>
+                            <input type="number" id="nut_water" min="0" max="15" value="0"
+                                style="width:100%;background:var(--bg-card);border:var(--border-glass);
+                                color:var(--text-primary);padding:10px 12px;border-radius:10px;font-family:inherit;font-size:0.87rem;box-sizing:border-box;">
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+                        <label style="display:flex;align-items:center;gap:8px;padding:10px;background:rgba(0,212,180,0.05);border-radius:10px;cursor:pointer;border:1px solid rgba(0,212,180,0.15);font-size:0.85rem;">
+                            <input type="checkbox" id="nut_iron" style="accent-color:var(--accent-teal);"> 🩸 Iron Tablet
+                        </label>
+                        <label style="display:flex;align-items:center;gap:8px;padding:10px;background:rgba(0,212,180,0.05);border-radius:10px;cursor:pointer;border:1px solid rgba(0,212,180,0.15);font-size:0.85rem;">
+                            <input type="checkbox" id="nut_folic" style="accent-color:var(--accent-teal);"> 💊 Folic Acid
+                        </label>
+                        <label style="display:flex;align-items:center;gap:8px;padding:10px;background:rgba(0,212,180,0.05);border-radius:10px;cursor:pointer;border:1px solid rgba(0,212,180,0.15);font-size:0.85rem;">
+                            <input type="checkbox" id="nut_calcium" style="accent-color:var(--accent-teal);"> 🦴 Calcium
+                        </label>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:5px;">🍎 Fruits</label>
+                            <input type="number" id="nut_fruits" min="0" max="10" value="0"
+                                style="width:100%;background:var(--bg-card);border:var(--border-glass);color:var(--text-primary);padding:8px;border-radius:8px;font-family:inherit;font-size:0.85rem;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:5px;">🥦 Vegetables</label>
+                            <input type="number" id="nut_vegetables" min="0" max="10" value="0"
+                                style="width:100%;background:var(--bg-card);border:var(--border-glass);color:var(--text-primary);padding:8px;border-radius:8px;font-family:inherit;font-size:0.85rem;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:5px;">🍗 Protein</label>
+                            <input type="number" id="nut_protein" min="0" max="10" value="0"
+                                style="width:100%;background:var(--bg-card);border:var(--border-glass);color:var(--text-primary);padding:8px;border-radius:8px;font-family:inherit;font-size:0.85rem;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:5px;">🥛 Dairy</label>
+                            <input type="number" id="nut_dairy" min="0" max="10" value="0"
+                                style="width:100%;background:var(--bg-card);border:var(--border-glass);color:var(--text-primary);padding:8px;border-radius:8px;font-family:inherit;font-size:0.85rem;box-sizing:border-box;">
+                        </div>
+                    </div>
+                    <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:6px;" id="nutritionSummary"></div>
+                    <textarea id="nut_notes" placeholder="Any notes about your diet today…"
+                        style="width:100%;background:rgba(255,255,255,0.04);border:var(--border-glass);
+                        color:var(--text-primary);padding:12px;border-radius:10px;font-family:inherit;
+                        font-size:0.87rem;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:14px;"></textarea>
+                    <button id="nutritionSubmitBtn" onclick="submitNutrition()"
+                        style="width:100%;padding:12px;background:linear-gradient(135deg,var(--accent-teal),#059669);
+                        border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:0.9rem;
+                        font-weight:600;cursor:pointer;">🥗 Save Nutrition Log</button>
+                </div>
+            </div>
             <!-- Emergency Contacts -->
             <div class="glass-card">
                 <div class="glass-card-inner">
