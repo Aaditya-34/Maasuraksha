@@ -191,6 +191,99 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Run on load
     setTimeout(loadPatientData, 1000);
+    
+    // ── Manual Vitals Submit ──────────────────────────────────
+    window.submitManualVitals = async function() {
+        const user = window.MSAuth?.user;
+        if (!user?.patientId) {
+            alert('Please log in as a patient first.');
+            return;
+        }
+
+        // Read values
+        const hr       = parseFloat(document.getElementById('mv_hr')?.value);
+        const spo2     = parseFloat(document.getElementById('mv_spo2')?.value);
+        const systolic = parseFloat(document.getElementById('mv_systolic')?.value);
+        const diastolic= parseFloat(document.getElementById('mv_diastolic')?.value);
+        const temp     = parseFloat(document.getElementById('mv_temp')?.value);
+        const activity = document.getElementById('mv_activity')?.value || 'resting';
+
+        // Validate — at least BP or HR must be entered
+        if (!hr && !systolic && !spo2) {
+            const warn = document.getElementById('vitalsWarning');
+            warn.textContent = '⚠️ Please enter at least Heart Rate, SpO₂, or Blood Pressure.';
+            warn.style.display = 'block';
+            setTimeout(() => warn.style.display = 'none', 3000);
+            return;
+        }
+
+        // Live warning for dangerous values
+        const warnings = [];
+        if (systolic >= 140) warnings.push('⚠️ High BP detected — please contact your doctor.');
+        if (spo2 && spo2 <= 94) warnings.push('⚠️ Low SpO₂ — please rest and seek medical advice.');
+        if (hr >= 110) warnings.push('⚠️ Elevated heart rate — rest and monitor.');
+
+        const warnEl = document.getElementById('vitalsWarning');
+        if (warnings.length) {
+            warnEl.textContent = warnings.join(' ');
+            warnEl.style.display = 'block';
+        } else {
+            warnEl.style.display = 'none';
+        }
+
+        const btn = document.getElementById('vitalsSubmitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+
+        const reading = {
+            hr:         hr       || null,
+            spo2:       spo2     || null,
+            systolic:   systolic || null,
+            diastolic:  diastolic|| null,
+            temperature:temp     || null,
+            activity
+        };
+
+        try {
+            if (window.MaaSuraksha?.isOnline) {
+                await window.MaaSuraksha.postVitals(user.patientId, reading);
+
+                // Show success
+                const success = document.getElementById('vitalsEntrySuccess');
+                success.style.display = 'block';
+                setTimeout(() => success.style.display = 'none', 3000);
+
+                // Clear form
+                ['mv_hr','mv_spo2','mv_temp','mv_systolic','mv_diastolic','mv_weight']
+                    .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+
+                // Reload patient data
+                loadPatientData();
+
+            } else {
+                // Offline — update VitalsEngine locally so charts update
+                if (!isNaN(hr))       VitalsEngine.baseline.hr.val        = hr;
+                if (!isNaN(spo2))     VitalsEngine.baseline.spo2.val      = spo2;
+                if (!isNaN(systolic)) VitalsEngine.baseline.systolic.val  = systolic;
+                if (!isNaN(diastolic))VitalsEngine.baseline.diastolic.val = diastolic;
+                if (!isNaN(temp))     VitalsEngine.baseline.temp.val      = temp;
+
+                const success = document.getElementById('vitalsEntrySuccess');
+                success.textContent = '✅ Saved locally (backend offline — will sync when connected)';
+                success.style.display = 'block';
+                setTimeout(() => {
+                    success.style.display = 'none';
+                    success.textContent = '✅ Vitals saved successfully!';
+                }, 3000);
+            }
+        } catch(e) {
+            alert('Failed to save vitals. Try again.');
+            console.error(e);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '📋 Save Vitals Reading';
+        }
+    };
 
     // ── Symptom Form Submit ───────────────────────────────────
     window.submitSymptoms = async function() {

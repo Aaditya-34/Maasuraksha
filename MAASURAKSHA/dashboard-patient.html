@@ -300,6 +300,99 @@
                     </div>
                 </div>
             </div>
+            <!-- Manual Vitals Entry -->
+            <div class="glass-card" style="margin-bottom:24px;">
+                <div class="glass-card-inner">
+                    <h4 style="margin-bottom:4px;">📋 Log Your Vitals Manually</h4>
+                    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:18px;">
+                        No wearable? Enter your readings from your home BP monitor or clinic visit.
+                    </p>
+                    <div id="vitalsEntrySuccess" style="display:none;padding:10px 14px;
+                        background:rgba(0,212,180,0.12);border:1px solid rgba(0,212,180,0.3);
+                        border-radius:10px;color:var(--accent-teal);font-size:0.87rem;margin-bottom:14px;">
+                        ✅ Vitals saved successfully!
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+                        <div>
+                            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;">❤️ Heart Rate (bpm)</label>
+                            <input type="number" id="mv_hr" min="40" max="180" placeholder="e.g. 82"
+                                style="width:100%;background:var(--bg-card);border:var(--border-glass);
+                                color:var(--text-primary);padding:10px 12px;border-radius:10px;
+                                font-family:inherit;font-size:0.87rem;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;">🫁 SpO₂ (%)</label>
+                            <input type="number" id="mv_spo2" min="80" max="100" placeholder="e.g. 97"
+                                style="width:100%;background:var(--bg-card);border:var(--border-glass);
+                                color:var(--text-primary);padding:10px 12px;border-radius:10px;
+                                font-family:inherit;font-size:0.87rem;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;">🌡️ Temperature (°C)</label>
+                            <input type="number" id="mv_temp" min="35" max="42" step="0.1" placeholder="e.g. 36.8"
+                                style="width:100%;background:var(--bg-card);border:var(--border-glass);
+                                color:var(--text-primary);padding:10px 12px;border-radius:10px;
+                                font-family:inherit;font-size:0.87rem;box-sizing:border-box;">
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+                        <div>
+                            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;">💉 Systolic BP (mmHg)</label>
+                            <input type="number" id="mv_systolic" min="70" max="200" placeholder="e.g. 118"
+                                style="width:100%;background:var(--bg-card);border:var(--border-glass);
+                                color:var(--text-primary);padding:10px 12px;border-radius:10px;
+                                font-family:inherit;font-size:0.87rem;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;">💉 Diastolic BP (mmHg)</label>
+                            <input type="number" id="mv_diastolic" min="40" max="130" placeholder="e.g. 76"
+                                style="width:100%;background:var(--bg-card);border:var(--border-glass);
+                                color:var(--text-primary);padding:10px 12px;border-radius:10px;
+                                font-family:inherit;font-size:0.87rem;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;">⚖️ Weight (kg)</label>
+                            <input type="number" id="mv_weight" min="30" max="150" step="0.1" placeholder="e.g. 62.5"
+                                style="width:100%;background:var(--bg-card);border:var(--border-glass);
+                                color:var(--text-primary);padding:10px 12px;border-radius:10px;
+                                font-family:inherit;font-size:0.87rem;box-sizing:border-box;">
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;">🏃 Activity at time of reading</label>
+                            <select id="mv_activity" style="width:100%;background:var(--bg-card);border:var(--border-glass);
+                                color:var(--text-primary);padding:10px 12px;border-radius:10px;
+                                font-family:inherit;font-size:0.87rem;">
+                                <option value="resting">😴 Resting</option>
+                                <option value="light">🚶 Light Activity</option>
+                                <option value="moderate">🏃 Moderate Activity</option>
+                                <option value="post_exercise">💪 Post Exercise</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;">📍 Source of reading</label>
+                            <select id="mv_source" style="width:100%;background:var(--bg-card);border:var(--border-glass);
+                                color:var(--text-primary);padding:10px 12px;border-radius:10px;
+                                font-family:inherit;font-size:0.87rem;">
+                                <option value="home">🏠 Home Monitor</option>
+                                <option value="clinic">🏥 Clinic Visit</option>
+                                <option value="pharmacy">💊 Pharmacy</option>
+                                <option value="asha">👩‍⚕️ ASHA Worker</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Live validation feedback -->
+                    <div id="vitalsWarning" style="display:none;padding:10px 14px;
+                        background:rgba(255,179,71,0.1);border:1px solid rgba(255,179,71,0.3);
+                        border-radius:10px;color:var(--accent-amber);font-size:0.83rem;margin-bottom:12px;">
+                    </div>
+                    <button id="vitalsSubmitBtn" onclick="submitManualVitals()"
+                        style="width:100%;padding:12px;background:linear-gradient(135deg,var(--accent-teal),#059669);
+                        border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:0.9rem;
+                        font-weight:600;cursor:pointer;">📋 Save Vitals Reading</button>
+                </div>
+            </div>
             <!-- Symptom Input Section -->
             <div class="glass-card" style="margin-bottom:24px;">
                 <div class="glass-card-inner">
