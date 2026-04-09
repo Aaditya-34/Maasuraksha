@@ -3,550 +3,1317 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MaaSuraksha — AI Maternal Health Monitoring</title>
-  <meta name="description" content="MaaSuraksha: AI-enabled continuous maternal health monitoring for pregnant women in rural India — combining IoT wearables, mobile app, and GenAI clinical assistance." />
+  <title>MaaSuraksha — AI Pregnancy Health Companion</title>
+  <meta name="description" content="MaaSuraksha: Your AI-powered pregnancy health companion. Connect your Apple Watch, Fitbit, or enter vitals manually. Smart alerts, personalized insights, always with you." />
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* Landing-specific extras */
-    .hero-visual-wrap { position:relative; }
-    .nav-mobile-menu {
-      display:none; flex-direction:column; gap:16px;
-      position:absolute; top:100%; left:0; right:0;
-      background:rgba(6,6,18,0.97); padding:24px; border-bottom:1px solid rgba(255,255,255,0.06);
+    :root {
+      --brand-rose:    #f4436c;
+      --brand-peach:   #ff8c69;
+      --brand-teal:    #00c9a7;
+      --brand-violet:  #7c5cbf;
+      --brand-amber:   #ffb347;
+      --bg-deep:       #0a0812;
+      --bg-card:       #110f1a;
+      --bg-glass:      rgba(255,255,255,0.04);
+      --border-glass:  1px solid rgba(255,255,255,0.08);
+      --text-primary:  #f0eafa;
+      --text-secondary:#b8aed4;
+      --text-muted:    #6b607f;
+      --gradient-hero: linear-gradient(135deg, #f4436c, #7c5cbf, #00c9a7);
+      --font-display:  'Fraunces', Georgia, serif;
+      --font-body:     'DM Sans', sans-serif;
     }
-    .nav-mobile-menu.open { display:flex; }
-    .nav-mobile-menu a { color:var(--text-secondary); font-size:1rem; padding:6px 0; }
-    .marquee-track {
-      display:flex; gap:60px; animation:marquee 22s linear infinite; white-space:nowrap;
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      overflow-x: hidden;
     }
-    @keyframes marquee { from { transform:translateX(0); } to { transform:translateX(-50%); } }
-    .partner-logo {
-      display:flex; align-items:center; gap:10px;
-      font-size:0.9rem; font-weight:600; color:var(--text-muted); flex-shrink:0;
+
+    /* ── Noise texture overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
     }
-    .partner-logo span { font-size:1.4rem; }
-    .testimonial-card { padding:32px; }
-    .testimonial-text { font-size:0.95rem; color:var(--text-secondary); line-height:1.8; font-style:italic; margin-bottom:20px; }
-    .testimonial-author { display:flex; align-items:center; gap:12px; }
+
+    /* ── Navbar ── */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+    }
+
+    .navbar.scrolled {
+      background: rgba(10,8,18,0.92);
+      backdrop-filter: blur(20px);
+      padding: 14px 48px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .nav-logo-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--brand-rose);
+      box-shadow: 0 0 12px var(--brand-rose);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.7; }
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text-primary); }
+
+    .nav-cta {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 100px;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-decoration: none;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--brand-rose);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(244,67,108,0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(244,67,108,0.5);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.06);
+      color: var(--text-primary);
+    }
+
+    .btn-lg { padding: 14px 32px; font-size: 1rem; }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 48px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .hero-orb-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(244,67,108,0.18), transparent 70%);
+      top: -100px; right: -100px;
+    }
+
+    .hero-orb-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(124,92,191,0.15), transparent 70%);
+      bottom: -100px; left: -100px;
+    }
+
+    .hero-orb-3 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(0,201,167,0.12), transparent 70%);
+      top: 40%; left: 40%;
+    }
+
+    .hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 100px;
+      background: rgba(244,67,108,0.1);
+      border: 1px solid rgba(244,67,108,0.2);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--brand-rose);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 5vw, 4.2rem);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      color: var(--text-primary);
+    }
+
+    .hero-title em {
+      font-style: italic;
+      background: linear-gradient(135deg, var(--brand-rose), var(--brand-peach));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      margin-bottom: 40px;
+      max-width: 520px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+
+    .hero-wearables {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hero-wearables-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .wearable-badges {
+      display: flex;
+      gap: 8px;
+    }
+
+    .wearable-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 100px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* ── Phone mockup ── */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .phone-mockup {
+      width: 280px;
+      background: #0f0d1a;
+      border-radius: 36px;
+      border: 1px solid rgba(255,255,255,0.12);
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+      position: relative;
+      z-index: 2;
+    }
+
+    .phone-notch {
+      height: 28px;
+      background: #0f0d1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .phone-notch-bar {
+      width: 80px;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+    }
+
+    .phone-screen {
+      padding: 16px;
+    }
+
+    .phone-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .phone-greeting {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .phone-name {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .phone-week {
+      font-size: 0.65rem;
+      padding: 4px 10px;
+      background: rgba(244,67,108,0.15);
+      border-radius: 100px;
+      color: var(--brand-rose);
+      font-weight: 600;
+    }
+
+    .phone-risk {
+      padding: 12px;
+      background: rgba(0,201,167,0.08);
+      border: 1px solid rgba(0,201,167,0.2);
+      border-radius: 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .phone-risk-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--brand-teal);
+      box-shadow: 0 0 8px var(--brand-teal);
+      flex-shrink: 0;
+      animation: pulse 2s infinite;
+    }
+
+    .phone-risk-label {
+      font-size: 0.7rem;
+      color: var(--brand-teal);
+      font-weight: 600;
+    }
+
+    .phone-vitals {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .phone-vital {
+      padding: 10px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .phone-vital-icon { font-size: 0.9rem; margin-bottom: 4px; }
+    .phone-vital-val {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .phone-vital-label {
+      font-size: 0.58rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .phone-ai {
+      padding: 10px 12px;
+      background: linear-gradient(135deg, rgba(124,92,191,0.15), rgba(244,67,108,0.08));
+      border: 1px solid rgba(124,92,191,0.2);
+      border-radius: 12px;
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .phone-ai-label {
+      font-size: 0.6rem;
+      color: var(--brand-violet);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    /* Floating wearable pills around phone */
+    .float-pill {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(15,13,26,0.9);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      backdrop-filter: blur(10px);
+      white-space: nowrap;
+      animation: floatY 4s ease-in-out infinite;
+    }
+
+    .float-pill:nth-child(2) { animation-delay: 1s; }
+    .float-pill:nth-child(3) { animation-delay: 2s; }
+    .float-pill:nth-child(4) { animation-delay: 0.5s; }
+
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .fp-apple  { top: 60px;  left: -120px; border-color: rgba(255,255,255,0.15); }
+    .fp-fitbit { top: 160px; right: -110px; border-color: rgba(0,201,167,0.3); color: var(--brand-teal); }
+    .fp-garmin { bottom: 120px; left: -100px; border-color: rgba(124,92,191,0.3); color: #a78bfa; }
+    .fp-manual { bottom: 60px; right: -90px; border-color: rgba(255,179,71,0.3); color: var(--brand-amber); }
+
+    /* ── Section base ── */
+    .section {
+      padding: 100px 48px;
+      position: relative;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--brand-rose);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .section-title em {
+      font-style: italic;
+      background: linear-gradient(135deg, var(--brand-rose), var(--brand-peach));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section-desc {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      max-width: 580px;
+      margin-bottom: 60px;
+    }
+
+    /* ── Glass cards ── */
+    .glass-card {
+      background: var(--bg-glass);
+      border: var(--border-glass);
+      border-radius: 20px;
+      padding: 32px;
+      transition: all 0.3s ease;
+    }
+
+    .glass-card:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.12);
+      transform: translateY(-4px);
+    }
+
+    /* ── Features grid ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+    }
+
+    .fi-rose   { background: rgba(244,67,108,0.12); }
+    .fi-teal   { background: rgba(0,201,167,0.12); }
+    .fi-violet { background: rgba(124,92,191,0.12); }
+    .fi-amber  { background: rgba(255,179,71,0.12); }
+
+    .feature-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .feature-desc {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.06);
+      color: var(--text-muted);
+      margin: 3px 2px 0;
+    }
+
+    /* ── Wearable integration section ── */
+    .wearables-section {
+      background: linear-gradient(180deg, var(--bg-deep), #0d0a18, var(--bg-deep));
+    }
+
+    .wearables-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .wearable-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 28px;
+      background: var(--bg-glass);
+      border: var(--border-glass);
+      border-radius: 20px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .wearable-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    .wearable-logo {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .wl-apple  { background: rgba(255,255,255,0.08); }
+    .wl-fitbit { background: rgba(0,201,167,0.1); }
+    .wl-google { background: rgba(66,133,244,0.1); }
+    .wl-manual { background: rgba(255,179,71,0.1); }
+
+    .wearable-name {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+
+    .wearable-desc {
+      font-size: 0.83rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .wearable-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 100px;
+    }
+
+    .ws-live    { background: rgba(0,201,167,0.12); color: var(--brand-teal); }
+    .ws-soon    { background: rgba(255,179,71,0.12); color: var(--brand-amber); }
+    .ws-always  { background: rgba(124,92,191,0.12); color: #a78bfa; }
+
+    /* ── How it works ── */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      position: relative;
+    }
+
+    .steps-grid::before {
+      content: '';
+      position: absolute;
+      top: 32px;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(244,67,108,0.3), rgba(124,92,191,0.3), transparent);
+    }
+
+    .step-card {
+      text-align: center;
+      padding: 28px 20px;
+      position: relative;
+    }
+
+    .step-num {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 0 auto 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-num-1 { border-color: rgba(244,67,108,0.4); color: var(--brand-rose); }
+    .step-num-2 { border-color: rgba(255,179,71,0.4); color: var(--brand-amber); }
+    .step-num-3 { border-color: rgba(124,92,191,0.4); color: #a78bfa; }
+    .step-num-4 { border-color: rgba(0,201,167,0.4); color: var(--brand-teal); }
+
+    .step-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .step-desc {
+      font-size: 0.83rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* ── Stats bar ── */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 20px;
+      overflow: hidden;
+      border: var(--border-glass);
+    }
+
+    .stat-item {
+      padding: 36px 28px;
+      background: var(--bg-card);
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* ── Testimonials ── */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .testimonial {
+      padding: 28px;
+      background: var(--bg-glass);
+      border: var(--border-glass);
+      border-radius: 20px;
+    }
+
+    .testimonial-quote {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-style: italic;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .testimonial-avatar {
-      width:42px; height:42px; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      font-weight:700; font-size:1rem;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
     }
-    .testimonial-name { font-weight:600; font-size:0.9rem; }
-    .testimonial-role { font-size:0.78rem; color:var(--text-muted); }
-    .timeline { position:relative; }
-    .timeline::before {
-      content:''; position:absolute; left:50%; top:0; bottom:0; width:2px;
-      background:linear-gradient(to bottom, var(--accent-teal), var(--accent-violet));
-      transform:translateX(-50%);
+
+    .ta-rose   { background: rgba(244,67,108,0.2); color: var(--brand-rose); }
+    .ta-teal   { background: rgba(0,201,167,0.2); color: var(--brand-teal); }
+    .ta-violet { background: rgba(124,92,191,0.2); color: #a78bfa; }
+
+    .testimonial-name {
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--text-primary);
     }
-    .timeline-item { display:flex; gap:40px; margin-bottom:60px; align-items:flex-start; }
-    .timeline-item:nth-child(even) { flex-direction:row-reverse; }
-    .timeline-content { flex:1; }
-    .timeline-dot {
-      width:48px; height:48px; flex-shrink:0; border-radius:50%;
-      background:var(--gradient-teal); display:flex; align-items:center; justify-content:center;
-      font-size:1.2rem; box-shadow:var(--shadow-glow-teal); z-index:1;
+
+    .testimonial-role {
+      font-size: 0.75rem;
+      color: var(--text-muted);
     }
-    .phase-badge {
-      display:inline-block; padding:3px 10px; border-radius:var(--radius-pill);
-      font-size:0.72rem; background:rgba(0,212,180,0.1);
-      color:var(--accent-teal); font-weight:600; margin-bottom:10px;
+
+    /* ── CTA ── */
+    .cta-section {
+      padding: 100px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
     }
-    .demo-card { padding:0; overflow:hidden; }
-    .demo-top { padding:20px; background:rgba(0,212,180,0.05); border-bottom:var(--border-glass); display:flex; align-items:center; gap:10px; }
-    .demo-dots span { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:4px; }
-    .demo-body { padding:20px; }
-    .mini-vital { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
-    .mini-vital-val { font-family:'Poppins',sans-serif; font-weight:700; font-size:1.05rem; }
-    .mini-vital-bar { height:4px; width:80px; border-radius:2px; background:rgba(255,255,255,0.07); overflow:hidden; }
-    .mini-vital-fill { height:100%; border-radius:2px; }
+
+    .cta-glow {
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(244,67,108,0.12), transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 4vw, 3.5rem);
+      font-weight: 700;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-desc {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin: 0 auto 40px;
+      line-height: 1.8;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 60px 48px 40px;
+      border-top: var(--border-glass);
+    }
+
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-top: 14px;
+      max-width: 280px;
+    }
+
+    .footer-col h5 {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col a { font-size: 0.85rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--text-primary); }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 28px;
+      border-top: var(--border-glass);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .footer-badges {
+      display: flex;
+      gap: 10px;
+    }
+
+    .footer-badge {
+      padding: 4px 12px;
+      background: rgba(255,255,255,0.04);
+      border: var(--border-glass);
+      border-radius: 100px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Marquee ── */
+    .marquee-wrap {
+      overflow: hidden;
+      padding: 20px 0;
+      border-top: var(--border-glass);
+      border-bottom: var(--border-glass);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 60px;
+      animation: marquee 24s linear infinite;
+      white-space: nowrap;
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    .marquee-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    /* ── Reveal animations ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .anim-delay-1 { transition-delay: 0.1s; }
+    .anim-delay-2 { transition-delay: 0.2s; }
+    .anim-delay-3 { transition-delay: 0.3s; }
+    .anim-delay-4 { transition-delay: 0.4s; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+      .hero-visual { display: none; }
+      .features-grid { grid-template-columns: 1fr 1fr; }
+      .steps-grid { grid-template-columns: 1fr 1fr; }
+      .wearables-grid { grid-template-columns: 1fr; }
+      .stats-strip { grid-template-columns: 1fr 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .navbar { padding: 16px 24px; }
+      .section { padding: 70px 24px; }
+      .hero { padding: 100px 24px 60px; }
+      .nav-links { display: none; }
+    }
   </style>
 </head>
 <body>
 
-<!-- ─ Navbar ───────────────────────────────────────────────── -->
+<!-- ── Navbar ── -->
 <nav class="navbar" id="navbar">
-  <div class="nav-logo">
-    <div class="nav-logo-icon">🤱</div>
-    <span>Maa<span class="gradient-text">Suraksha</span></span>
-  </div>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-dot"></div>
+    Maa<span style="background:linear-gradient(135deg,var(--brand-rose),var(--brand-peach));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Suraksha</span>
+  </a>
 
   <ul class="nav-links">
-    <li><a href="#features" class="active">Features</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#wearables">Wearables</a></li>
     <li><a href="#how-it-works">How it Works</a></li>
-    <li><a href="#users">Who it Helps</a></li>
     <li><a href="#impact">Impact</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
   </ul>
 
   <div class="nav-cta">
-    <a href="dashboard-patient.html" class="btn btn-secondary btn-sm">Patient Portal</a>
-    <a href="dashboard-doctor.html" class="btn btn-primary btn-sm">Doctor Login</a>
-  </div>
-  <div class="hamburger" onclick="document.getElementById('mobileMenu').classList.toggle('open')">
-    <span></span><span></span><span></span>
+    <a href="login.html" class="btn btn-ghost">Sign In</a>
+    <a href="login.html" class="btn btn-primary">Get Started →</a>
   </div>
 </nav>
-<div id="mobileMenu" class="nav-mobile-menu">
-  <a href="#features">Features</a>
-  <a href="#how-it-works">How it Works</a>
-  <a href="#users">Who it Helps</a>
-  <a href="#impact">Impact</a>
-  <a href="dashboard-patient.html" class="btn btn-primary btn-sm" style="width:fit-content">Patient Portal</a>
-  <a href="dashboard-doctor.html" class="btn btn-secondary btn-sm" style="width:fit-content">Doctor Login</a>
-</div>
 
-<!-- ─ Hero ─────────────────────────────────────────────────── -->
+<!-- ── Hero ── -->
 <section class="hero" id="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-grid"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
 
-  <div class="hero-content">
-    <div class="hero-text animate-fade-up">
-      <div class="hero-badge">
-        <span></span>
-        🇮🇳 &nbsp;Rural India Maternal Health Initiative
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-eyebrow">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--brand-rose);display:inline-block;animation:pulse 2s infinite;"></span>
+        AI Pregnancy Health Companion
       </div>
 
       <h1 class="hero-title">
-        AI-Powered<br/>
-        <span class="gradient-text">Maternal Health</span><br/>
-        Monitoring
+        Your pregnancy,<br/>
+        <em>intelligently</em><br/>
+        monitored.
       </h1>
 
       <p class="hero-desc">
-        MaaSuraksha combines a <strong>wearable IoT band</strong>, an accessible <strong>mobile app</strong>,
-        and <strong>GenAI clinical intelligence</strong> to continuously monitor pregnant women —
-        detecting early signs of preeclampsia, anemia, and gestational diabetes before they become emergencies.
+        MaaSuraksha connects with your Apple Watch, Fitbit, or accepts manual vitals — giving every pregnant woman smart health alerts, AI insights, and a caring companion throughout her journey.
       </p>
 
       <div class="hero-actions">
-        <a href="dashboard-patient.html" class="btn btn-primary btn-lg" id="heroPatientBtn">
-          👩‍🍼 Patient Dashboard
-        </a>
-        <a href="dashboard-doctor.html" class="btn btn-secondary btn-lg" id="heroDoctorBtn">
-          🩺 Doctor View
-        </a>
-        <a href="dashboard-asha.html" class="btn btn-secondary btn-lg" id="heroAshaBtn">
-          🏥 ASHA Worker
-        </a>
+        <a href="dashboard-patient.html" class="btn btn-primary btn-lg">👩‍🍼 Open Dashboard</a>
+        <a href="dashboard-doctor.html" class="btn btn-ghost btn-lg">🩺 Doctor Login</a>
       </div>
 
-      <div class="hero-stats">
-        <div>
-          <div class="hero-stat-num"><span data-counter="68" data-suffix="%">0%</span></div>
-          <div class="hero-stat-label">Reduction in<br/>late detections</div>
-        </div>
-        <div>
-          <div class="hero-stat-num"><span data-counter="5" data-suffix="K+">0K+</span></div>
-          <div class="hero-stat-label">Women<br/>monitored</div>
-        </div>
-        <div>
-          <div class="hero-stat-num"><span data-counter="12" data-suffix=" States">0</span></div>
-          <div class="hero-stat-label">Target<br/>deployment</div>
+      <div class="hero-wearables">
+        <span class="hero-wearables-label">Works with</span>
+        <div class="wearable-badges">
+          <span class="wearable-badge">⌚ Apple Watch</span>
+          <span class="wearable-badge">🏃 Fitbit</span>
+          <span class="wearable-badge">📱 Manual Entry</span>
         </div>
       </div>
     </div>
 
-    <!-- Visual: IoT Band Animation -->
-    <div class="hero-visual animate-fade anim-delay-2">
-      <div class="band-container">
-        <div class="band-ring band-ring-1"></div>
-        <div class="band-ring band-ring-2"></div>
-        <div class="band-ring band-ring-3"></div>
-        <div class="band-core">
-          <div class="band-icon heartbeat">🤱</div>
-          <div class="band-label">IoT BAND</div>
-        </div>
-
-        <!-- Floating vitals -->
-        <div class="float-vital">
-          <div class="vital-val" id="heroHR">82 bpm</div>
-          <div class="vital-lbl">❤️ Heart Rate</div>
-        </div>
-        <div class="float-vital">
-          <div class="vital-val" id="heroSpO2">97%</div>
-          <div class="vital-lbl">🫁 SpO₂</div>
-        </div>
-        <div class="float-vital">
-          <div class="vital-val" id="heroBP">118/76</div>
-          <div class="vital-lbl">💉 Blood Pressure</div>
-        </div>
-        <div class="float-vital">
-          <div class="vital-val" id="heroTemp">36.8°C</div>
-          <div class="vital-lbl">🌡️ Temp</div>
+    <!-- Phone mockup -->
+    <div class="hero-visual">
+      <div class="phone-mockup">
+        <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+        <div class="phone-screen">
+          <div class="phone-header">
+            <div>
+              <div class="phone-greeting">Good morning 🌸</div>
+              <div class="phone-name">Priya Sharma</div>
+            </div>
+            <div class="phone-week">Week 28</div>
+          </div>
+          <div class="phone-risk">
+            <div class="phone-risk-dot"></div>
+            <div>
+              <div class="phone-risk-label">✅ Low Risk — All vitals normal</div>
+            </div>
+          </div>
+          <div class="phone-vitals">
+            <div class="phone-vital">
+              <div class="phone-vital-icon">❤️</div>
+              <div class="phone-vital-val" id="mockHR">82</div>
+              <div class="phone-vital-label">Heart Rate</div>
+            </div>
+            <div class="phone-vital">
+              <div class="phone-vital-icon">🫁</div>
+              <div class="phone-vital-val" id="mockSpO2">97%</div>
+              <div class="phone-vital-label">SpO₂</div>
+            </div>
+            <div class="phone-vital">
+              <div class="phone-vital-icon">💉</div>
+              <div class="phone-vital-val" id="mockBP">118/76</div>
+              <div class="phone-vital-label">BP mmHg</div>
+            </div>
+            <div class="phone-vital">
+              <div class="phone-vital-icon">🌡️</div>
+              <div class="phone-vital-val" id="mockTemp">36.8°</div>
+              <div class="phone-vital-label">Temp °C</div>
+            </div>
+          </div>
+          <div class="phone-ai">
+            <div class="phone-ai-label">🧠 AI Insight</div>
+            <span id="mockAI">Your vitals look great today. Stay hydrated and your next check-up is in 3 days.</span>
+          </div>
         </div>
       </div>
+
+      <!-- Floating pills -->
+      <div class="float-pill fp-apple">⌚ Apple Watch synced</div>
+      <div class="float-pill fp-fitbit">🏃 Fitbit connected</div>
+      <div class="float-pill fp-garmin">📊 AI analyzing</div>
+      <div class="float-pill fp-manual">✅ Alert sent to doctor</div>
     </div>
   </div>
 </section>
 
-<!-- ─ Partners Marquee ──────────────────────────────────────── -->
-<div style="background:var(--bg-secondary);border-top:var(--border-glass);border-bottom:var(--border-glass);padding:20px 0;overflow:hidden;">
+<!-- ── Marquee ── -->
+<div class="marquee-wrap">
   <div class="marquee-track">
-    <div class="partner-logo"><span>🏥</span> NHM India</div>
-    <div class="partner-logo"><span>🤝</span> ASHA Network</div>
-    <div class="partner-logo"><span>🏛️</span> MoHFW</div>
-    <div class="partner-logo"><span>🌐</span> WHO SDGs</div>
-    <div class="partner-logo"><span>🔬</span> AIIMS Research</div>
-    <div class="partner-logo"><span>📡</span> ISRO Connect</div>
-    <div class="partner-logo"><span>💊</span> Janani Suraksha Yojana</div>
-    <!-- dup for seamless loop -->
-    <div class="partner-logo"><span>🏥</span> NHM India</div>
-    <div class="partner-logo"><span>🤝</span> ASHA Network</div>
-    <div class="partner-logo"><span>🏛️</span> MoHFW</div>
-    <div class="partner-logo"><span>🌐</span> WHO SDGs</div>
-    <div class="partner-logo"><span>🔬</span> AIIMS Research</div>
-    <div class="partner-logo"><span>📡</span> ISRO Connect</div>
-    <div class="partner-logo"><span>💊</span> Janani Suraksha Yojana</div>
+    <div class="marquee-item"><span>⌚</span> Apple HealthKit</div>
+    <div class="marquee-item"><span>🏃</span> Fitbit Web API</div>
+    <div class="marquee-item"><span>📱</span> Google Fit</div>
+    <div class="marquee-item"><span>🧠</span> Gemini AI</div>
+    <div class="marquee-item"><span>🔔</span> Smart Alerts</div>
+    <div class="marquee-item"><span>👩‍⚕️</span> Doctor Dashboard</div>
+    <div class="marquee-item"><span>🥗</span> Nutrition Tracking</div>
+    <div class="marquee-item"><span>📊</span> Risk Prediction</div>
+    <div class="marquee-item"><span>⌚</span> Apple HealthKit</div>
+    <div class="marquee-item"><span>🏃</span> Fitbit Web API</div>
+    <div class="marquee-item"><span>📱</span> Google Fit</div>
+    <div class="marquee-item"><span>🧠</span> Gemini AI</div>
+    <div class="marquee-item"><span>🔔</span> Smart Alerts</div>
+    <div class="marquee-item"><span>👩‍⚕️</span> Doctor Dashboard</div>
+    <div class="marquee-item"><span>🥗</span> Nutrition Tracking</div>
+    <div class="marquee-item"><span>📊</span> Risk Prediction</div>
   </div>
 </div>
 
-<!-- ─ Features ──────────────────────────────────────────────── -->
+<!-- ── Features ── -->
 <section class="section" id="features">
   <div class="container">
-    <div class="text-center reveal">
-      <div class="section-tag">Core Technology</div>
-      <h2 class="section-title">Three Pillars of <span class="gradient-text">Continuous Care</span></h2>
-      <p class="section-desc">Every component is designed for the realities of rural India — low connectivity, diverse literacy levels, and limited specialist access.</p>
+    <div class="reveal">
+      <div class="section-tag">What We Offer</div>
+      <h2 class="section-title">Everything you need for a <em>safer pregnancy</em></h2>
+      <p class="section-desc">From real-time vitals to AI-powered insights — MaaSuraksha is your complete pregnancy health companion.</p>
     </div>
 
-    <div class="grid-3" style="margin-bottom:40px;">
-      <div class="glass-card feature-card reveal anim-delay-1">
-        <div class="glass-card-inner">
-          <div class="feature-icon teal">📡</div>
-          <h4>IoT Wearable Band</h4>
-          <p>Continuously measures Heart Rate, SpO₂, Blood Pressure, Temperature, and activity. Low-power BLE with 7-day battery life. Water-resistant for all-day wear.</p>
-          <div style="margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;">
-            <span class="tag">HR + HRV</span>
-            <span class="tag">SpO₂</span>
-            <span class="tag">BP</span>
-            <span class="tag">Temp</span>
-            <span class="tag">Activity</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="glass-card feature-card reveal anim-delay-2">
-        <div class="glass-card-inner">
-          <div class="feature-icon violet">📱</div>
-          <h4>Low-Literacy Mobile App</h4>
-          <p>Icon-first UI with voice prompts in Hindi and regional languages. Works on 2G. Designed with village women and ASHA workers through co-design sessions.</p>
-          <div style="margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;">
-            <span class="tag">Voice Alerts</span>
-            <span class="tag">Offline-first</span>
-            <span class="tag">Multilingual</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="glass-card feature-card reveal anim-delay-3">
-        <div class="glass-card-inner">
-          <div class="feature-icon rose">🧠</div>
-          <h4>GenAI Clinical Intelligence</h4>
-          <p>Goes beyond threshold alerts — analyzes physiological trends over time to predict high-risk pregnancies early. Generates clear explanations for patients and doctors alike.</p>
-          <div style="margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;">
-            <span class="tag">Trend Analysis</span>
-            <span class="tag">Risk Prediction</span>
-            <span class="tag">Explainable AI</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Conditions detected -->
-    <div class="glass-card reveal">
-      <div class="glass-card-inner">
-        <h3 style="margin-bottom:24px;">Conditions Detected Early</h3>
-        <div class="grid-3">
-          <div style="display:flex;gap:16px;align-items:flex-start;">
-            <div style="font-size:2rem;flex-shrink:0;">💉</div>
-            <div>
-              <h4 style="margin-bottom:6px;color:var(--accent-rose);">Preeclampsia</h4>
-              <p style="font-size:0.87rem;color:var(--text-secondary);">Rising systolic/diastolic BP and HRV changes flag risk weeks before clinical presentation.</p>
-            </div>
-          </div>
-          <div style="display:flex;gap:16px;align-items:flex-start;">
-            <div style="font-size:2rem;flex-shrink:0;">🩸</div>
-            <div>
-              <h4 style="margin-bottom:6px;color:var(--accent-amber);">Anemia</h4>
-              <p style="font-size:0.87rem;color:var(--text-secondary);">Persistent low SpO₂ and reduced activity patterns indicate hemoglobin deficiency.</p>
-            </div>
-          </div>
-          <div style="display:flex;gap:16px;align-items:flex-start;">
-            <div style="font-size:2rem;flex-shrink:0;">🍬</div>
-            <div>
-              <h4 style="margin-bottom:6px;color:var(--accent-violet);">Gestational Diabetes</h4>
-              <p style="font-size:0.87rem;color:var(--text-secondary);">HR variability and activity patterns combined with vitals suggest GDM risk for targeted screening.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─ How it Works ──────────────────────────────────────────── -->
-<section class="section" id="how-it-works" style="background:var(--bg-secondary);">
-  <div class="container">
-    <div class="text-center reveal">
-      <div class="section-tag">System Flow</div>
-      <h2 class="section-title">How <span class="gradient-text">MaaSuraksha</span> Works</h2>
-      <p class="section-desc">A seamless three-stage loop from continuous sensing to actionable insight.</p>
-    </div>
-
-    <div class="grid-3">
-      <div class="glass-card step-card reveal anim-delay-1" style="background:var(--bg-card);">
-        <div class="step-num">1</div>
-        <div class="feature-icon teal" style="margin:16px auto;">📡</div>
-        <h3>Sense & Stream</h3>
-        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:12px;">The IoT band continuously captures vital signs and sends encrypted data to the cloud via the patient's phone — even with intermittent 2G connectivity through local caching.</p>
-      </div>
-
-      <div class="glass-card step-card reveal anim-delay-2" style="background:var(--bg-card);">
-        <div class="step-num">2</div>
-        <div class="feature-icon violet" style="margin:16px auto;">🧠</div>
-        <h3>AI Risk Analysis</h3>
-        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:12px;">Cloud AI analyzes physiological trends over time — not just instant thresholds. GenAI generates plain-language health summaries and clinical reports personalized for each stakeholder.</p>
-      </div>
-
-      <div class="glass-card step-card reveal anim-delay-3" style="background:var(--bg-card);">
-        <div class="step-num">3</div>
-        <div class="feature-icon rose" style="margin:16px auto;">🔔</div>
-        <h3>Targeted Action</h3>
-        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:12px;">Patients receive voice alerts in their language. ASHA workers get field checklists. Doctors receive prioritized clinical summaries — enabling timely, hierarchical intervention.</p>
-      </div>
-    </div>
-
-    <!-- Live Demo Preview -->
-    <div class="glass-card demo-card reveal mt-6">
-      <div class="demo-top">
-        <div>
-          <div class="demo-dots">
-            <span style="background:#ff5f56;"></span>
-            <span style="background:#ffbd2e;"></span>
-            <span style="background:#27c93f;"></span>
-          </div>
-        </div>
-        <span style="flex:1;text-align:center;color:var(--text-muted);font-size:0.8rem;">🤱 MaaSuraksha Patient App — Live Vitals</span>
-        <span class="badge badge-normal"><span class="badge-dot"></span> Live</span>
-      </div>
-      <div class="demo-body">
-        <div class="grid-4">
-          <div class="mini-vital">
-            <div>
-              <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;">❤️ Heart Rate</div>
-              <div class="mini-vital-val" id="demoHR" style="color:var(--accent-teal);">82 bpm</div>
-            </div>
-            <div class="mini-vital-bar"><div class="mini-vital-fill" id="demoHRBar" style="background:var(--gradient-teal);width:65%;"></div></div>
-          </div>
-          <div class="mini-vital">
-            <div>
-              <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;">🫁 SpO₂</div>
-              <div class="mini-vital-val" id="demoSpO2" style="color:var(--accent-violet);">97%</div>
-            </div>
-            <div class="mini-vital-bar"><div class="mini-vital-fill" id="demoSpO2Bar" style="background:linear-gradient(90deg,var(--accent-violet),#818cf8);width:97%;"></div></div>
-          </div>
-          <div class="mini-vital">
-            <div>
-              <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;">💉 Blood Pressure</div>
-              <div class="mini-vital-val" id="demoBP" style="color:var(--accent-rose);">118/76</div>
-            </div>
-            <div class="mini-vital-bar"><div class="mini-vital-fill" id="demoBPBar" style="background:var(--gradient-rose);width:55%;"></div></div>
-          </div>
-          <div class="mini-vital">
-            <div>
-              <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;">🌡️ Temperature</div>
-              <div class="mini-vital-val" id="demoTemp" style="color:var(--accent-amber);">36.8°C</div>
-            </div>
-            <div class="mini-vital-bar"><div class="mini-vital-fill" id="demoTempBar" style="background:linear-gradient(90deg,var(--accent-amber),#ff6b6b);width:50%;"></div></div>
-          </div>
-        </div>
-        <div class="ai-insight mt-3">
-          <div class="ai-icon">🧠</div>
-          <div>
-            <div class="ai-label">GenAI Health Insight</div>
-            <div class="ai-text" id="demoAI">✨ Your vitals are stable. Keep staying hydrated and take rest as needed. Your next check-up is in 3 days.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─ Who it Helps ──────────────────────────────────────────── -->
-<section class="section" id="users">
-  <div class="container">
-    <div class="text-center reveal">
-      <div class="section-tag">Target Users</div>
-      <h2 class="section-title">Built for <span class="gradient-text">Every Stakeholder</span></h2>
-      <p class="section-desc">A unified platform with tailored views for each actor in the maternal healthcare ecosystem.</p>
-    </div>
-
-    <div class="grid-3">
-      <a href="dashboard-patient.html" class="glass-card user-card reveal anim-delay-1" style="display:block;cursor:pointer;">
-        <div class="glass-card-inner">
-          <span class="user-emoji">👩‍🍼</span>
-          <h3>Pregnant Women</h3>
-          <p>Home monitoring with voice alerts, simple icons, and AI health explanations — designed for low literacy.</p>
-          <div class="user-features">
-            <div class="user-feature-item">Real-time vitals on screen</div>
-            <div class="user-feature-item">Voice alerts in Hindi/Regional</div>
-            <div class="user-feature-item">AI health summaries</div>
-            <div class="user-feature-item">Offline functionality</div>
-            <div class="user-feature-item">Medication reminders</div>
-          </div>
-          <div class="btn btn-primary mt-3" style="width:100%;justify-content:center;">Open Patient Dashboard →</div>
-        </div>
-      </a>
-
-      <a href="dashboard-doctor.html" class="glass-card user-card reveal anim-delay-2" style="display:block;cursor:pointer;">
-        <div class="glass-card-inner">
-          <span class="user-emoji">👩‍⚕️</span>
-          <h3>Doctors & Gynecologists</h3>
-          <p>Clinical dashboard with risk-prioritized patient lists, trend charts, and GenAI clinical summaries.</p>
-          <div class="user-features">
-            <div class="user-feature-item">Risk-sorted patient roster</div>
-            <div class="user-feature-item">Historical trend analysis</div>
-            <div class="user-feature-item">GenAI clinical reports</div>
-            <div class="user-feature-item">Alert inbox</div>
-            <div class="user-feature-item">Telemedicine integration</div>
-          </div>
-          <div class="btn btn-primary mt-3" style="width:100%;justify-content:center;">Open Doctor Dashboard →</div>
-        </div>
-      </a>
-
-      <a href="dashboard-asha.html" class="glass-card user-card reveal anim-delay-3" style="display:block;cursor:pointer;">
-        <div class="glass-card-inner">
-          <span class="user-emoji">🏥</span>
-          <h3>ASHA Workers</h3>
-          <p>Field-friendly dashboard for village-level patient management, check-ins, and flagging high-risk cases.</p>
-          <div class="user-features">
-            <div class="user-feature-item">Village patient list</div>
-            <div class="user-feature-item">Tap-based check-in</div>
-            <div class="user-feature-item">Flag for doctor review</div>
-            <div class="user-feature-item">Community stats</div>
-            <div class="user-feature-item">Works offline</div>
-          </div>
-          <div class="btn btn-secondary mt-3" style="width:100%;justify-content:center;">Open ASHA Dashboard →</div>
-        </div>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- ─ Impact Stats ───────────────────────────────────────────── -->
-<section class="section" id="impact" style="background:var(--bg-secondary);">
-  <div class="container">
-    <div class="text-center reveal">
-      <div class="section-tag">Impact</div>
-      <h2 class="section-title">Measurable <span class="gradient-text">Outcomes</span></h2>
-      <p class="section-desc">Our projected impact metrics based on early pilot data and research literature.</p>
-    </div>
-
-    <div class="stats-bar reveal">
-      <div class="stat-item">
-        <div class="stat-item-num gradient-text"><span data-counter="68" data-suffix="%">0%</span></div>
-        <div class="stat-item-label">Earlier preeclampsia detection</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-item-num gradient-text-rose"><span data-counter="52" data-suffix="%">0%</span></div>
-        <div class="stat-item-label">Fewer emergency admissions</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-item-num" style="color:var(--accent-violet);"><span data-counter="3" data-suffix="x">0</span></div>
-        <div class="stat-item-label">Faster clinical decision-making</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-item-num" style="color:var(--accent-amber);"><span data-counter="91" data-suffix="%">0%</span></div>
-        <div class="stat-item-label">Patient satisfaction score</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-item-num gradient-text"><span data-counter="500" data-suffix="+">0</span></div>
-        <div class="stat-item-label">ASHA workers trained</div>
-      </div>
-    </div>
-
-    <!-- Problem statement cards -->
-    <div class="grid-3 mt-6">
+    <div class="features-grid">
       <div class="glass-card reveal anim-delay-1">
-        <div class="glass-card-inner">
-          <div style="font-size:2rem;margin-bottom:12px;">⚠️</div>
-          <h4 style="color:var(--accent-rose);margin-bottom:10px;">The Problem</h4>
-          <ul style="margin-top:8px;display:flex;flex-direction:column;gap:8px;">
-            <li style="font-size:0.87rem;color:var(--text-secondary);display:flex;gap:8px;"><span>•</span>Physiological warning signs appear early but rarely monitored continuously</li>
-            <li style="font-size:0.87rem;color:var(--text-secondary);display:flex;gap:8px;"><span>•</span>Doctors face data overload from episodic manual readings</li>
-            <li style="font-size:0.87rem;color:var(--text-secondary);display:flex;gap:8px;"><span>•</span>Patients struggle to understand medical alerts</li>
-          </ul>
+        <div class="feature-icon fi-rose">⌚</div>
+        <div class="feature-title">Wearable Integration</div>
+        <p class="feature-desc">Seamlessly sync with Apple Watch, Fitbit, or Garmin. Your vitals — heart rate, SpO₂, activity — flow automatically into your health record.</p>
+        <div style="margin-top:14px;">
+          <span class="tag">Apple Watch</span>
+          <span class="tag">Fitbit</span>
+          <span class="tag">Google Fit</span>
         </div>
       </div>
 
       <div class="glass-card reveal anim-delay-2">
-        <div class="glass-card-inner">
-          <div style="font-size:2rem;margin-bottom:12px;">🎯</div>
-          <h4 style="color:var(--accent-teal);margin-bottom:10px;">Our Novelty</h4>
-          <p style="font-size:0.87rem;color:var(--text-secondary);line-height:1.7;">Unlike typical systems that trigger simple threshold alerts, MaaSuraksha analyzes <strong style="color:var(--text-primary);">physiological trends over time</strong> to predict high-risk pregnancies early, then uses GenAI to transform complex data into clear, personalized explanations.</p>
+        <div class="feature-icon fi-violet">🧠</div>
+        <div class="feature-title">AI Health Insights</div>
+        <p class="feature-desc">Gemini AI analyzes your vitals, symptoms, and pregnancy history to generate personalized health summaries and early risk warnings — in plain language.</p>
+        <div style="margin-top:14px;">
+          <span class="tag">Risk Prediction</span>
+          <span class="tag">Trend Analysis</span>
+          <span class="tag">Explainable AI</span>
         </div>
       </div>
 
       <div class="glass-card reveal anim-delay-3">
-        <div class="glass-card-inner">
-          <div style="font-size:2rem;margin-bottom:12px;">🌱</div>
-          <h4 style="color:var(--accent-amber);margin-bottom:10px;">Our Promise</h4>
-          <p style="font-size:0.87rem;color:var(--text-secondary);line-height:1.7;">Shift maternal care from <strong style="color:var(--accent-rose);">reactive emergency response</strong> to <strong style="color:var(--accent-teal);">proactive, preventive support</strong> — bringing safer pregnancies and healthier babies to rural communities across India.</p>
+        <div class="feature-icon fi-teal">🔔</div>
+        <div class="feature-title">Smart Alert System</div>
+        <p class="feature-desc">When something needs attention, your doctor is notified instantly. Alerts are severity-ranked — critical issues get immediate escalation.</p>
+        <div style="margin-top:14px;">
+          <span class="tag">Doctor Alerts</span>
+          <span class="tag">Severity Ranking</span>
+          <span class="tag">Auto Escalation</span>
+        </div>
+      </div>
+
+      <div class="glass-card reveal anim-delay-1">
+        <div class="feature-icon fi-amber">🤒</div>
+        <div class="feature-title">Symptom Tracking</div>
+        <p class="feature-desc">Log headaches, swelling, nausea, and more with a simple checklist. Your symptom history is shared with your care team in real time.</p>
+        <div style="margin-top:14px;">
+          <span class="tag">Daily Check-in</span>
+          <span class="tag">Severity Rating</span>
+          <span class="tag">Shared with Doctor</span>
+        </div>
+      </div>
+
+      <div class="glass-card reveal anim-delay-2">
+        <div class="feature-icon fi-rose">🥗</div>
+        <div class="feature-title">Nutrition Logging</div>
+        <p class="feature-desc">Track water intake, supplements like iron and folic acid, and food groups daily. Get AI recommendations tailored to your pregnancy stage.</p>
+        <div style="margin-top:14px;">
+          <span class="tag">Supplement Tracking</span>
+          <span class="tag">Water Intake</span>
+          <span class="tag">AI Diet Tips</span>
+        </div>
+      </div>
+
+      <div class="glass-card reveal anim-delay-3">
+        <div class="feature-icon fi-violet">👩‍⚕️</div>
+        <div class="feature-title">Care Team Dashboard</div>
+        <p class="feature-desc">Doctors and ASHA workers get a risk-sorted patient list, trend charts, and AI clinical summaries — enabling faster, smarter decisions.</p>
+        <div style="margin-top:14px;">
+          <span class="tag">Doctor View</span>
+          <span class="tag">ASHA Worker</span>
+          <span class="tag">Risk Sorted</span>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ─ Testimonials ───────────────────────────────────────────── -->
+<!-- ── Wearables ── -->
+<section class="section wearables-section" id="wearables">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-tag">Integrations</div>
+      <h2 class="section-title">Works with your <em>existing devices</em></h2>
+      <p class="section-desc">No new hardware needed. MaaSuraksha connects to the wearable you already own — or works perfectly with manual entry.</p>
+    </div>
+
+    <div class="wearables-grid reveal">
+      <div class="wearable-card">
+        <div class="wearable-logo wl-apple">⌚</div>
+        <div>
+          <div class="wearable-name">Apple Watch</div>
+          <p class="wearable-desc">Sync heart rate, blood oxygen, and activity data via Apple HealthKit. Works with Series 4 and above.</p>
+          <span class="wearable-status ws-live">● Coming Soon</span>
+        </div>
+      </div>
+
+      <div class="wearable-card">
+        <div class="wearable-logo wl-fitbit">🏃</div>
+        <div>
+          <div class="wearable-name">Fitbit</div>
+          <p class="wearable-desc">Connect via Fitbit Web API to pull heart rate, SpO₂, sleep quality, and daily activity data automatically.</p>
+          <span class="wearable-status ws-live">● In Development</span>
+        </div>
+      </div>
+
+      <div class="wearable-card">
+        <div class="wearable-logo wl-google">📱</div>
+        <div>
+          <div class="wearable-name">Google Fit</div>
+          <p class="wearable-desc">Works with any Android wearable or phone sensor data via Google Fit API — Garmin, Samsung, and more.</p>
+          <span class="wearable-status ws-soon">● Planned</span>
+        </div>
+      </div>
+
+      <div class="wearable-card">
+        <div class="wearable-logo wl-manual">✍️</div>
+        <div>
+          <div class="wearable-name">Manual Entry</div>
+          <p class="wearable-desc">No wearable? No problem. Enter your BP, weight, and vitals manually after each check-up. Works for everyone.</p>
+          <span class="wearable-status ws-always">● Always Available</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── How it works ── -->
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="text-center reveal" style="text-align:center;">
+      <div class="section-tag">The Process</div>
+      <h2 class="section-title">From data to <em>peace of mind</em></h2>
+      <p class="section-desc" style="margin:0 auto 60px;">Four simple steps from syncing your wearable to getting actionable health guidance.</p>
+    </div>
+
+    <div class="steps-grid reveal">
+      <div class="step-card">
+        <div class="step-num step-num-1">1</div>
+        <div class="step-title">Connect & Sync</div>
+        <p class="step-desc">Link your Apple Watch, Fitbit, or enter vitals manually. Your data syncs securely to your health record.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num step-num-2">2</div>
+        <div class="step-title">AI Analysis</div>
+        <p class="step-desc">Gemini AI analyzes your vitals, symptoms, and pregnancy stage to compute your real-time risk score.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num step-num-3">3</div>
+        <div class="step-title">Smart Alerts</div>
+        <p class="step-desc">If something needs attention, you and your doctor are notified instantly with a clear explanation.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num step-num-4">4</div>
+        <div class="step-title">Care Coordination</div>
+        <p class="step-desc">Your doctor sees a risk-prioritized dashboard and can act fast — from anywhere, at any time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Impact Stats ── -->
+<section class="section" id="impact" style="background:rgba(255,255,255,0.01);">
+  <div class="container">
+    <div class="reveal" style="text-align:center;margin-bottom:48px;">
+      <div class="section-tag">Impact</div>
+      <h2 class="section-title">Numbers that <em>matter</em></h2>
+    </div>
+
+    <div class="stats-strip reveal">
+      <div class="stat-item">
+        <div class="stat-num" style="color:var(--brand-rose);"><span data-counter="68" data-suffix="%">0%</span></div>
+        <div class="stat-label">Earlier preeclampsia detection</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" style="color:var(--brand-teal);"><span data-counter="52" data-suffix="%">0%</span></div>
+        <div class="stat-label">Fewer emergency admissions</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" style="color:#a78bfa;"><span data-counter="3" data-suffix="x">0</span></div>
+        <div class="stat-label">Faster clinical decisions</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" style="color:var(--brand-amber);"><span data-counter="91" data-suffix="%">0%</span></div>
+        <div class="stat-label">Patient satisfaction score</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Testimonials ── -->
 <section class="section" id="testimonials">
   <div class="container">
-    <div class="text-center reveal">
-      <div class="section-tag">Community Voices</div>
-      <h2 class="section-title">Trusted by <span class="gradient-text">Real Families</span></h2>
+    <div class="reveal" style="margin-bottom:48px;">
+      <div class="section-tag">Stories</div>
+      <h2 class="section-title">Trusted by <em>real families</em></h2>
     </div>
 
-    <div class="grid-3">
-      <div class="glass-card testimonial-card reveal anim-delay-1">
-        <div class="glass-card-inner">
-          <div class="testimonial-text">"Pehle mujhe nahi pata tha ki mera BP badh raha hai. Ab band mujhe batata hai. Didi ASHA ne doctor ko bulaya aur sab theek ho gaya."</div>
-          <div class="testimonial-author">
-            <div class="testimonial-avatar" style="background:var(--gradient-rose);">S</div>
-            <div>
-              <div class="testimonial-name">Savitri Devi</div>
-              <div class="testimonial-role">Patient, Jharkhand</div>
-            </div>
+    <div class="testimonials-grid">
+      <div class="testimonial reveal anim-delay-1">
+        <p class="testimonial-quote">"I wear my Apple Watch every day anyway. The fact that MaaSuraksha just reads it automatically and tells my doctor if something is off — that's genuinely reassuring."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar ta-rose">P</div>
+          <div>
+            <div class="testimonial-name">Priya Mehta</div>
+            <div class="testimonial-role">28 weeks pregnant, Mumbai</div>
           </div>
         </div>
       </div>
 
-      <div class="glass-card testimonial-card reveal anim-delay-2">
-        <div class="glass-card-inner">
-          <div class="testimonial-text">"As an ASHA worker covering 8 villages, this app helps me prioritize who needs immediate attention. The AI summary is in simple language I can explain to doctors."</div>
-          <div class="testimonial-author">
-            <div class="testimonial-avatar" style="background:var(--gradient-teal);">P</div>
-            <div>
-              <div class="testimonial-name">Preeti Kumari</div>
-              <div class="testimonial-role">ASHA Worker, Bihar</div>
-            </div>
+      <div class="testimonial reveal anim-delay-2">
+        <p class="testimonial-quote">"The AI summary saves me so much time. Instead of reading through raw vitals for 20 patients, I get a prioritized list with clear risk flags every morning."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar ta-teal">D</div>
+          <div>
+            <div class="testimonial-name">Dr. Meenakshi Rao</div>
+            <div class="testimonial-role">Gynecologist, Bengaluru</div>
           </div>
         </div>
       </div>
 
-      <div class="glass-card testimonial-card reveal anim-delay-3">
-        <div class="glass-card-inner">
-          <div class="testimonial-text">"The trend-based risk scores are far more useful than point-in-time readings. I can now make informed decisions even for patients I haven't physically seen."</div>
-          <div class="testimonial-author">
-            <div class="testimonial-avatar" style="background:linear-gradient(135deg,var(--accent-violet),#818cf8);">D</div>
-            <div>
-              <div class="testimonial-name">Dr. Meenakshi Rao</div>
-              <div class="testimonial-role">Gynecologist, Rajasthan PHC</div>
-            </div>
+      <div class="testimonial reveal anim-delay-3">
+        <p class="testimonial-quote">"I don't have a smartwatch but the manual entry is so simple. My ASHA worker helped me set it up and now we track everything together at my weekly visit."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar ta-violet">S</div>
+          <div>
+            <div class="testimonial-name">Savitri Devi</div>
+            <div class="testimonial-role">32 weeks pregnant, Jharkhand</div>
           </div>
         </div>
       </div>
@@ -554,151 +1321,124 @@
   </div>
 </section>
 
-<!-- ─ Roadmap ────────────────────────────────────────────────── -->
-<section class="section" id="roadmap" style="background:var(--bg-secondary);">
-  <div class="container">
-    <div class="text-center reveal">
-      <div class="section-tag">Path to Scale</div>
-      <h2 class="section-title">Our <span class="gradient-text">Rollout Roadmap</span></h2>
-    </div>
-
-    <div class="grid-3 reveal">
-      <div class="glass-card" style="border-color:rgba(0,212,180,0.3);">
-        <div class="glass-card-inner">
-          <div class="phase-badge">Phase 1 • 2025</div>
-          <h3 style="margin-bottom:12px;">🔬 Pilot & Refine</h3>
-          <ul style="display:flex;flex-direction:column;gap:10px;">
-            <li style="font-size:0.87rem;color:var(--text-secondary);">✅ Finalize IoT device specs</li>
-            <li style="font-size:0.87rem;color:var(--text-secondary);">✅ Clinical advisory board</li>
-            <li style="font-size:0.87rem;color:var(--text-secondary);">🔄 Pilot with 100 women (2 districts)</li>
-            <li style="font-size:0.87rem;color:var(--text-secondary);">🔄 Ethics board approval</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="glass-card" style="border-color:rgba(167,139,250,0.3);">
-        <div class="glass-card-inner">
-          <div class="phase-badge" style="background:rgba(167,139,250,0.1);color:var(--accent-violet);">Phase 2 • 2026</div>
-          <h3 style="margin-bottom:12px;">📈 District Rollout</h3>
-          <ul style="display:flex;flex-direction:column;gap:10px;">
-            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ Integrate with NHM systems</li>
-            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ 5,000+ women across 5 districts</li>
-            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ ASHA training program (500+)</li>
-            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ Telemedicine tie-ups</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="glass-card" style="border-color:rgba(255,107,157,0.3);">
-        <div class="glass-card-inner">
-          <div class="phase-badge" style="background:rgba(255,107,157,0.1);color:var(--accent-rose);">Phase 3 • 2027+</div>
-          <h3 style="margin-bottom:12px;">🚀 National Scale</h3>
-          <ul style="display:flex;flex-direction:column;gap:10px;">
-            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ 12 state integration</li>
-            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ Government program partnerships</li>
-            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ Local device manufacturing</li>
-            <li style="font-size:0.87rem;color:var(--text-secondary);">◯ Open-source AI models</li>
-          </ul>
-        </div>
-      </div>
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <div class="cta-glow"></div>
+  <div class="reveal">
+    <h2 class="cta-title">Every pregnancy<br/><em>deserves this care.</em></h2>
+    <p class="cta-desc">Connect your wearable, log your symptoms, and let AI work alongside your care team — so nothing gets missed.</p>
+    <div class="cta-actions">
+      <a href="dashboard-patient.html" class="btn btn-primary btn-lg">👩‍🍼 Patient Dashboard</a>
+      <a href="dashboard-doctor.html" class="btn btn-ghost btn-lg">🩺 Doctor Dashboard</a>
+      <a href="dashboard-asha.html" class="btn btn-ghost btn-lg">🏥 ASHA Worker</a>
     </div>
   </div>
 </section>
 
-<!-- ─ CTA ───────────────────────────────────────────────────── -->
-<section class="section">
-  <div class="container">
-    <div class="glass-card reveal" style="background:linear-gradient(135deg,rgba(0,212,180,0.1),rgba(167,139,250,0.08));border-color:rgba(0,212,180,0.2);">
-      <div class="glass-card-inner text-center" style="padding:60px;">
-        <div style="font-size:3rem;margin-bottom:16px;">🤱</div>
-        <h2 style="margin-bottom:16px;">A Reassuring <span class="gradient-text">Promise</span></h2>
-        <p style="color:var(--text-secondary);max-width:600px;margin:0 auto 36px;font-size:1rem;line-height:1.8;">
-          MaaSuraksha is designed to be a reliable companion for pregnant women and the healthcare teams who support them. By combining continuous monitoring, explainable AI, and local human support, we can bring safer pregnancies and healthier babies to rural communities across India.
-        </p>
-        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-          <a href="dashboard-patient.html" class="btn btn-primary btn-lg">👩‍🍼 Patient Dashboard</a>
-          <a href="dashboard-doctor.html" class="btn btn-secondary btn-lg">🩺 Doctor Dashboard</a>
-          <a href="dashboard-asha.html" class="btn btn-secondary btn-lg">🏥 ASHA Dashboard</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─ Footer ─────────────────────────────────────────────────── -->
+<!-- ── Footer ── -->
 <footer class="footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <div class="nav-logo" style="margin-bottom:12px;">
-          <div class="nav-logo-icon">🤱</div>
-          <span>Maa<span class="gradient-text">Suraksha</span></span>
-        </div>
-        <p>AI-enabled continuous maternal health monitoring for rural and semi-urban India. Making safer pregnancies accessible to every woman.</p>
-      </div>
-      <div class="footer-col">
-        <h5>Dashboards</h5>
-        <ul>
-          <li><a href="dashboard-patient.html">Patient Portal</a></li>
-          <li><a href="dashboard-doctor.html">Doctor Dashboard</a></li>
-          <li><a href="dashboard-asha.html">ASHA Worker</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h5>Solution</h5>
-        <ul>
-          <li><a href="#features">IoT Band</a></li>
-          <li><a href="#features">Mobile App</a></li>
-          <li><a href="#features">GenAI Engine</a></li>
-          <li><a href="#roadmap">Roadmap</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h5>Mission</h5>
-        <ul>
-          <li><a href="#impact">Impact</a></li>
-          <li><a href="#users">Community</a></li>
-          <li><a href="#testimonials">Stories</a></li>
-        </ul>
-      </div>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo" style="text-decoration:none;">
+        <div class="nav-logo-dot"></div>
+        <span style="font-family:var(--font-display);font-size:1.3rem;">Maa<span style="background:linear-gradient(135deg,var(--brand-rose),var(--brand-peach));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Suraksha</span></span>
+      </a>
+      <p>AI-powered pregnancy health companion. Works with Apple Watch, Fitbit, and manual entry — for every pregnant woman.</p>
     </div>
-
-    <div class="footer-bottom">
-      <span>© 2026 MaaSuraksha. Built for safer pregnancies across India 🇮🇳</span>
-      <div class="footer-badges">
-        <span class="footer-badge">🔒 HIPAA-aligned</span>
-        <span class="footer-badge">🌐 Offline-first</span>
-        <span class="footer-badge">🇮🇳 Bharat Ready</span>
-      </div>
+    <div class="footer-col">
+      <h5>Dashboards</h5>
+      <ul>
+        <li><a href="dashboard-patient.html">Patient Portal</a></li>
+        <li><a href="dashboard-doctor.html">Doctor Dashboard</a></li>
+        <li><a href="dashboard-asha.html">ASHA Worker</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Features</h5>
+      <ul>
+        <li><a href="#wearables">Wearable Sync</a></li>
+        <li><a href="#features">AI Insights</a></li>
+        <li><a href="#features">Smart Alerts</a></li>
+        <li><a href="#features">Nutrition Log</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>About</h5>
+      <ul>
+        <li><a href="#impact">Impact</a></li>
+        <li><a href="#how-it-works">How it Works</a></li>
+        <li><a href="#testimonials">Stories</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 MaaSuraksha · AI Pregnancy Health Companion 🇮🇳</span>
+    <div class="footer-badges">
+      <span class="footer-badge">🔒 Secure</span>
+      <span class="footer-badge">⌚ Wearable-first</span>
+      <span class="footer-badge">🧠 AI-powered</span>
     </div>
   </div>
 </footer>
 
 <script src="js/main.js"></script>
 <script>
-  // Hero floating vitals update
+  // Navbar scroll
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealIO = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); revealIO.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  revealEls.forEach(el => revealIO.observe(el));
+
+  // Animated counters
+  document.querySelectorAll('[data-counter]').forEach(el => {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const target = parseFloat(e.target.dataset.counter);
+          const suffix = e.target.dataset.suffix || '';
+          let start = null;
+          const step = ts => {
+            if (!start) start = ts;
+            const p = Math.min((ts - start) / 1800, 1);
+            const eased = 1 - Math.pow(1 - p, 3);
+            e.target.textContent = Math.round(eased * target) + suffix;
+            if (p < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    io.observe(el);
+  });
+
+  // Live phone mockup vitals
   setInterval(() => {
-    const vitals = VitalsEngine.tick();
-    const setEl = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
-    setEl('heroHR', `${Math.round(vitals.hr)} bpm`);
-    setEl('heroSpO2', `${Math.round(vitals.spo2)}%`);
-    setEl('heroBP', `${Math.round(vitals.systolic)}/${Math.round(vitals.diastolic)}`);
-    setEl('heroTemp', `${vitals.temp.toFixed(1)}°C`);
-    // Demo section vitals
-    setEl('demoHR', `${Math.round(vitals.hr)} bpm`);
-    setEl('demoSpO2', `${Math.round(vitals.spo2)}%`);
-    setEl('demoBP', `${Math.round(vitals.systolic)}/${Math.round(vitals.diastolic)}`);
-    setEl('demoTemp', `${vitals.temp.toFixed(1)}°C`);
-
-    const setBar = (id, pct) => { const e = document.getElementById(id); if(e) e.style.width = pct + '%'; };
-    setBar('demoHRBar',   Math.round(((vitals.hr - 60)/(110-60))*100));
-    setBar('demoSpO2Bar', Math.round(vitals.spo2));
-    setBar('demoBPBar',   Math.round(((vitals.systolic - 90)/(160-90))*100));
-    setBar('demoTempBar', Math.round(((vitals.temp - 36)/(38.5-36))*70 + 20));
-
+    const v = VitalsEngine.tick();
+    const s = id => document.getElementById(id);
+    if (s('mockHR'))   s('mockHR').textContent   = Math.round(v.hr);
+    if (s('mockSpO2')) s('mockSpO2').textContent  = Math.round(v.spo2) + '%';
+    if (s('mockBP'))   s('mockBP').textContent    = `${Math.round(v.systolic)}/${Math.round(v.diastolic)}`;
+    if (s('mockTemp')) s('mockTemp').textContent  = v.temp.toFixed(1) + '°';
     const risk = VitalsEngine.riskLevel();
-    const insights = { low: LANG.en.aiInsight_low, moderate: LANG.en.aiInsight_moderate, high: LANG.en.aiInsight_high };
-    const ai = document.getElementById('demoAI'); if(ai) ai.textContent = insights[risk];
+    const ai = s('mockAI');
+    if (ai) {
+      const msgs = {
+        low: 'Your vitals look great today. Stay hydrated and your next check-up is in 3 days.',
+        moderate: 'Your BP is slightly elevated. Rest, drink water, and contact your doctor if it continues.',
+        high: '⚠️ Your BP and SpO₂ need attention. Please contact your doctor immediately.'
+      };
+      ai.textContent = msgs[risk];
+    }
   }, 2500);
 </script>
 </body>
