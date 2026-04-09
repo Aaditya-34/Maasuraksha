@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: maasuraksha-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: JWT_SECRET
+        value: your_jwt_secret_here
+      - key: GEMINI_API_KEY
+        value: your_gemini_key_here

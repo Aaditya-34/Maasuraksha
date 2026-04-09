@@ -85,7 +85,10 @@ async function logout() {
     const token = getToken();
     if (token) {
         try {
-            await fetch('http://localhost:3001/api/auth/logout', {
+            const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://localhost:3001'
+                : 'https://maasuraksha-api.onrender.com';
+            await fetch(`${base}/api/auth/logout`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -98,7 +101,10 @@ async function logout() {
 /* ── Login API call ──────────────────────────────────────────── */
 
 async function login(username, password) {
-    const res = await fetch('http://localhost:3001/api/auth/login', {
+    const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3001'
+        : 'https://maasuraksha-api.onrender.com';
+    const res = await fetch(`${base}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -144,7 +150,7 @@ function renderNavUser() {
     const _fetch = window.fetch.bind(window);
     window.fetch = function (url, opts = {}) {
         const token = getToken();
-        if (token && typeof url === 'string' && url.includes('localhost:3001/api')) {
+        if (token && typeof url === 'string' && (url.includes('localhost:3001/api') || url.includes('onrender.com/api'))) {
             opts.headers = Object.assign({ Authorization: `Bearer ${token}` }, opts.headers || {});
         }
         return _fetch(url, opts);

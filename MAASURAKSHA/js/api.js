@@ -7,7 +7,9 @@
 
 'use strict';
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3001/api'
+    : 'https://maasuraksha-api.onrender.com/api';
 let API_ONLINE = false; // flips to true once health-check passes
 
 /* ── Connectivity Check ──────────────────────────────────── */
