@@ -20,28 +20,7 @@
         }
     </style>
     <script src="js/auth.js"></script>
-    <script>
-        // Auth guard — patient only
-        (function () {
-            const u = window.MSAuth?.requireAuth ? window.MSAuth.requireAuth(['patient']) :
-                (function () {
-                    const tk = localStorage.getItem('ms_auth_token');
-                    const us = JSON.parse(localStorage.getItem('ms_auth_user') || 'null');
-                    if (!tk || !us) { window.location.replace('login.html'); return null; }
-                    if (!['patient'].includes(us.role)) { window.location.replace('login.html'); return null; }
-                    window.MSAuth = { token: tk, user: us, isLoggedIn: true };
-                    return us;
-                })();
-            if (!u) return;
-            // Fill sidebar name
-            document.addEventListener('DOMContentLoaded', () => {
-                const n = document.getElementById('sidebarUserName');
-                const a = document.getElementById('sidebarAvatar');
-                if (n) n.textContent = u.name || u.username;
-                if (a) a.textContent = (u.name || 'P')[0].toUpperCase();
-            });
-        })();
-    </script>
+    
 </head>
 
 <body class="dashboard-body">
