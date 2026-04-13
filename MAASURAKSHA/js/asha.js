@@ -150,7 +150,19 @@ function flagForDoctor(name) {
 }
 
 function selectAshaPatient(i) {
-    // Highlight selected (for future detail panel)
+    const p = ASHA_PATIENTS[i];
+    // Highlight selected row
+    document.querySelectorAll('#ashaPatientList > div').forEach((el, idx) => {
+        el.style.border = idx === i
+            ? '1px solid rgba(0,212,180,0.4)'
+            : '1px solid rgba(255,255,255,0.05)';
+    });
+    // Show info in checkin panel
+    const panel = document.getElementById('checkinPanel');
+    if (panel) {
+        const header = panel.querySelector('h4');
+        if (header) header.textContent = `✅ Check-In — ${p.name} (Week ${p.week})`;
+    }
 }
 
 window.openCheckin = openCheckin;
@@ -159,3 +171,24 @@ window.submitCheckin = submitCheckin;
 window.selectAshaPatient = selectAshaPatient;
 window.flagForDoctor = flagForDoctor;
 window.toggleCheckin = toggleCheckin;
+
+// ── Sidebar navigation ────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const text = item.textContent.trim();
+            if (text.includes("Today's Check-ins")) {
+                document.getElementById('checkinPanel')
+                    ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else if (text.includes('Flag for Doctor')) {
+                const highRisk = ASHA_PATIENTS.filter(p => p.risk === 'high');
+                alert(`🚨 High risk patients:\n${highRisk.map(p => `• ${p.name} (${p.village})`).join('\n')}`);
+            } else if (text.includes('Stats')) {
+                document.getElementById('ashaRiskChart')
+                    ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+        });
+    });
+});

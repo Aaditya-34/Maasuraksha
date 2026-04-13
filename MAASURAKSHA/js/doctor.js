@@ -139,3 +139,40 @@ window.selectPatient = selectPatient;
 function setText(id, val) {
     const el = document.getElementById(id); if (el) el.textContent = val;
 }
+// ── Sidebar navigation ────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const text = item.textContent.trim();
+            if (text.includes('Patient Roster')) showSection('patients');
+            else if (text.includes('Alert Inbox')) showSection('alerts');
+            else if (text.includes('Analytics')) showSection('analytics');
+            else if (text.includes('Overview')) showSection('overview');
+
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+        });
+    });
+
+    // Action buttons
+    document.querySelectorAll('.btn-rose').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const name = document.getElementById('selName')?.textContent;
+            alert(`📞 Calling ${name}... (Telemedicine feature coming soon)`);
+        });
+    });
+});
+
+function showSection(section) {
+    // All sections visible for now — just scroll to them
+    const sectionMap = {
+        'patients': 'patientTable',
+        'alerts': 'alertInbox',
+        'analytics': 'riskPieChart',
+        'overview': 'highRiskCount',
+    };
+    const el = document.getElementById(sectionMap[section]);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+window.showSection = showSection;

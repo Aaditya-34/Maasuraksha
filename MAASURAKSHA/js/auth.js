@@ -9,14 +9,9 @@
 
 'use strict';
 
-if (window._msAuthInitialized) {
-    // already loaded, skip
-} else {
-window._msAuthInitialized = true;
-
-const AUTH_KEY = 'ms_auth_token';
-const USER_KEY = 'ms_auth_user';
-const LOGIN_PAGE = 'login.html';
+var AUTH_KEY = 'ms_auth_token';
+var USER_KEY = 'ms_auth_user';
+var LOGIN_PAGE = 'login.html';
 
 /* ── Token storage ───────────────────────────────────────────── */
 
@@ -165,4 +160,3 @@ window.MSAuth.getUser = getUser;
 window.MSAuth.getToken = getToken;
 window.MSAuth.renderNavUser = renderNavUser;
 window.MSAuth.redirectToDashboard = redirectToDashboard;
-}

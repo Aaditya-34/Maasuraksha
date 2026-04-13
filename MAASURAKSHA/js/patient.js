@@ -370,3 +370,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 });
+// ── Sidebar navigation ────────────────────────────────────
+window.patientNav = function(section) {
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    const sectionMap = {
+        'dashboard':    'riskBadge',
+        'vitals':       'hrChart',
+        'alerts':       'alertsList',
+        'appointments': 'medicationsList',
+        'medications':  'medicationsList',
+        'asha':         'quickContacts',
+    };
+    const targetId = sectionMap[section];
+    const el = document.getElementById(targetId);
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+};

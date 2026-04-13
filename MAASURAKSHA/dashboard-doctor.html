@@ -20,21 +20,6 @@
         }
     </style>
     <script src="js/auth.js"></script>
-    <script>
-        (function () {
-            const tk = localStorage.getItem('ms_auth_token');
-            const us = JSON.parse(localStorage.getItem('ms_auth_user') || 'null');
-            if (!tk || !us) { window.location.replace('login.html'); return; }
-            if (!['doctor'].includes(us.role)) { window.location.replace('login.html'); return; }
-            window.MSAuth = { token: tk, user: us, isLoggedIn: true };
-            document.addEventListener('DOMContentLoaded', () => {
-                const n = document.getElementById('sidebarUserName');
-                const a = document.getElementById('sidebarAvatar');
-                if (n) n.textContent = us.name || us.username;
-                if (a) a.textContent = (us.name || 'D')[0].toUpperCase();
-            });
-        })();
-    </script>
 </head>
 
 <body class="dashboard-body">

@@ -34,37 +34,26 @@
             </div>
 
             <nav class="sidebar-nav">
-                <div class="sidebar-section-label">My Health</div>
-                <div class="sidebar-item active">
+                <div class="sidebar-item active" onclick="patientNav('dashboard')">
                     <span class="sidebar-item-icon">📊</span> Dashboard
                 </div>
-                <div class="sidebar-item">
+                <div class="sidebar-item" onclick="patientNav('vitals')">
                     <span class="sidebar-item-icon">❤️</span> Vitals History
                 </div>
-                <div class="sidebar-item">
+                <div class="sidebar-item" onclick="patientNav('alerts')">
                     <span class="sidebar-item-icon">🔔</span> Alerts
                     <span class="sidebar-badge">2</span>
                 </div>
                 <div class="sidebar-section-label" style="margin-top:16px;">Care</div>
-                <div class="sidebar-item">
+                <div class="sidebar-item" onclick="patientNav('appointments')">
                     <span class="sidebar-item-icon">📅</span> Appointments
                 </div>
-                <div class="sidebar-item">
+                <div class="sidebar-item" onclick="patientNav('medications')">
                     <span class="sidebar-item-icon">💊</span> Medications
                 </div>
-                <div class="sidebar-item">
+                <div class="sidebar-item" onclick="patientNav('asha')">
                     <span class="sidebar-item-icon">📞</span> Contact ASHA
                 </div>
-                <div class="sidebar-section-label" style="margin-top:16px;">Navigation</div>
-                <a class="sidebar-item" href="index.html">
-                    <span class="sidebar-item-icon">🏠</span> Home
-                </a>
-                <a class="sidebar-item" href="dashboard-doctor.html">
-                    <span class="sidebar-item-icon">👨‍⚕️</span> Doctor View
-                </a>
-                <a class="sidebar-item" href="dashboard-asha.html">
-                    <span class="sidebar-item-icon">💂</span> ASHA View
-                </a>
             </nav>
 
             <div class="sidebar-footer">
@@ -513,7 +502,7 @@
                 </div>
             </div>
             <!-- Emergency Contacts -->
-            <div class="glass-card">
+            <div class="glass-card" id="quickContacts">
                 <div class="glass-card-inner">
                     <h4 style="margin-bottom:16px;">📞 Quick Contacts</h4>
                     <div class="grid-3">
